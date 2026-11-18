@@ -266,3 +266,4 @@
 - `GET /api/v1/gdpr/export`: Download all user PII, profile, uploaded CVs, consents, and matches in structured JSON (Article 20 - Data Portability).
 - `POST /api/v1/gdpr/consent`: Record update to consent choices.
 - `DELETE /api/v1/gdpr/delete-account`: Permanent account erasure (Article 17 - Right to Erasure / Right to be Forgotten). Cascade deletes candidate profile, CV files from S3, embeddings, and matches; retains an anonymized audit log.
+

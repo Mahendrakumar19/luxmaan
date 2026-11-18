@@ -108,3 +108,4 @@ export interface AdminKPIs {
   totalMatchesCalculated: number;
   ingestionFailuresToday: number;
 }
+

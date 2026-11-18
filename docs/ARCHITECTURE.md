@@ -26,8 +26,8 @@ flowchart TD
         Nginx["Reverse Proxy / TLS Termination (Nginx/Traefik)"]
     end
 
-    subgraph CoreServices["Backend Core (.NET 10 Web API)"]
-        AuthModule["Auth & Identity (JWT / PBKDF2 / RBAC)"]
+    subgraph CoreServices["Backend Core (Node.js / TypeScript / Express)"]
+        AuthModule["Auth & Identity (JWT / Scrypt / RBAC)"]
         CandidateModule["Candidate Profile & CV Service"]
         JobDiscoveryModule["Job Search & Discovery Engine"]
         AdminModule["Admin & Source Management"]
@@ -80,7 +80,7 @@ flowchart TD
 | Layer | Technology | Decision Rationale |
 | :--- | :--- | :--- |
 | **Frontend** | **Next.js 14+ (App Router), React, TypeScript, Tailwind CSS** | Server-side rendering (SSR) for lightning-fast public pages and SEO in German/English markets; type safety; modular component design; zero-runtime CSS footprint with Tailwind. |
-| **Backend Core** | **.NET 10 Web API (C#)** | High-throughput, low-latency asynchronous runtime; enterprise-grade dependency injection, Entity Framework Core with native PostgreSQL/pgvector support, strongly typed CQRS architecture. |
+| **Backend Core** | **Node.js 20+ (TypeScript / Express)** | Fast non-blocking event-driven runtime; clean modular layered architecture, typed interfaces matching all DTOs and database operations, JWT authentication, and native JSON processing for REST APIs. |
 | **AI / NLP Service** | **Python 3.12, FastAPI, SentenceTransformers, spaCy, PyPDF** | Rich ecosystem for NLP, multilingual text extraction, vector embeddings (`paraphrase-multilingual-MiniLM-L12-v2`), and explainable AI generation. |
 | **Relational & Vector DB** | **PostgreSQL 16 with `pgvector`** | Unified database eliminating split-brain state between relational relational metadata (users, applications, logs) and high-dimensional semantic embeddings (384-dim or 768-dim vectors). Native indexing via HNSW and IVFFlat. |
 | **Cache & Queue** | **Redis 7** | Sub-millisecond session caching, refresh token blacklisting, ingestion task queueing, and distributed rate limiting. |
@@ -116,3 +116,4 @@ The platform enforces strict role-based authorization across five hierarchical r
    - EU Data Hosting: AWS Frankfurt (`eu-central-1`) exclusively.
    - Zero discriminatory bias: No age, gender, race, religion, or disability data is processed or scored in matching algorithms.
    - Explainable Match Reasoning: Transparent scoring breakdown provided to candidate.
+

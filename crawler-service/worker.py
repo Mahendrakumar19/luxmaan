@@ -29,3 +29,4 @@ async def run_ingestion_cycle():
 if __name__ == "__main__":
     jobs = asyncio.run(run_ingestion_cycle())
     print(f"Ingested {len(jobs)} jobs successfully.")
+

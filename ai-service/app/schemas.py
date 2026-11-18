@@ -107,3 +107,4 @@ class MatchResponse(BaseModel):
     matching_skills: List[str]
     missing_skills: List[str]
     explanation: MatchExplanation
+

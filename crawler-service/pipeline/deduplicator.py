@@ -14,3 +14,4 @@ class Deduplicator:
         
         fingerprint = f"{norm_company}:{norm_title}:{norm_city}"
         return hashlib.sha256(fingerprint.encode('utf-8')).hexdigest()
+

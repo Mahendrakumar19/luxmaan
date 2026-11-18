@@ -75,3 +75,4 @@ docker compose run --rm crawler-service python worker.py
    Deploy Nginx or Traefik with Let's Encrypt certificates in front of the services.
 3. **Data Retention Policies:**
    Configure automatic purging of transient parsing artifacts older than 30 days.
+

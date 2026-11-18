@@ -18,11 +18,13 @@ Built under strict **Privacy-by-Design** principles adhering to the European **G
 ```
 nilam/
 ├── frontend/               # Next.js 14+ App Router, React, TypeScript, Tailwind CSS
-├── backend/                # .NET 10 ASP.NET Core Web API (Clean Architecture)
-│   ├── src/JobAgent.Domain/
-│   ├── src/JobAgent.Application/
-│   ├── src/JobAgent.Infrastructure/
-│   └── src/JobAgent.API/
+├── backend/                # Node.js 20+ TypeScript Express Web API (Clean Architecture)
+│   ├── src/types/          # Domain models, Enums, DTOs
+│   ├── src/controllers/    # Auth, Candidate, Jobs, Matches, Admin, GDPR
+│   ├── src/middleware/     # JWT Auth & Role Enforcement
+│   ├── src/services/       # Business logic & AI Microservice client
+│   ├── src/routes/         # REST endpoint routes
+│   └── src/db/             # Store & database connections
 ├── ai-service/             # Python 3.12, FastAPI, SentenceTransformers (MiniLM)
 ├── crawler-service/        # Multi-source Ingestion Engine (Arbeitsagentur, Feeds)
 ├── docker/                 # init-db.sql with pgvector schema
@@ -34,7 +36,7 @@ nilam/
 
 ### Core Technologies
 - **Frontend:** Next.js 14+ App Router, TypeScript, Tailwind CSS, Lucide Icons, responsive European SaaS UI.
-- **Backend API:** .NET 10 Web API, Entity Framework Core with native `pgvector` provider, JWT Bearer authentication, PBKDF2 password hashing, RBAC.
+- **Backend API:** Node.js 20+ Web API (TypeScript / Express), JWT Bearer authentication, Scrypt password hashing, RBAC, REST endpoints matching European labor market requirements.
 - **AI & NLP Microservice:** Python 3.12, FastAPI, `paraphrase-multilingual-MiniLM-L12-v2` 384-dimensional dense embeddings, multilingual PDF/DOCX parser, German CEFR language level extraction (A1-C2).
 - **Relational & Vector Store:** PostgreSQL 16+ with `pgvector` HNSW cosine indexing.
 - **Cache & Queues:** Redis 7.
@@ -103,3 +105,4 @@ Access the interfaces:
 
 ---
 Developed for **Nighwan Technology Pvt. Ltd.**
+

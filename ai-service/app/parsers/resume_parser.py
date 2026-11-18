@@ -254,3 +254,4 @@ class ResumeParser:
                 if i + 1 < len(lines):
                     return " ".join(lines[i+1:i+4])[:500]
         return "Motivated engineering professional focused on high-quality software solutions in Germany and the EU."
+

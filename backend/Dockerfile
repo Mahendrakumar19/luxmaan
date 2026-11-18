@@ -1,23 +1,25 @@
-# Multi-stage build for .NET 10 Web API
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
-WORKDIR /src
+FROM node:20-alpine AS builder
 
-COPY ["JobAgent.sln", "./"]
-COPY ["src/JobAgent.Domain/JobAgent.Domain.csproj", "src/JobAgent.Domain/"]
-COPY ["src/JobAgent.Application/JobAgent.Application.csproj", "src/JobAgent.Application/"]
-COPY ["src/JobAgent.Infrastructure/JobAgent.Infrastructure.csproj", "src/JobAgent.Infrastructure/"]
-COPY ["src/JobAgent.API/JobAgent.API.csproj", "src/JobAgent.API/"]
+WORKDIR /app
 
-RUN dotnet restore "JobAgent.sln"
+COPY package*.json ./
+RUN npm ci
 
 COPY . .
-WORKDIR "/src/src/JobAgent.API"
-RUN dotnet build "JobAgent.API.csproj" -c Release -o /app/build
-RUN dotnet publish "JobAgent.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN npm run build
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS final
+FROM node:20-alpine AS runner
+
 WORKDIR /app
-COPY --from=build /app/publish .
+
+ENV NODE_ENV=production
+ENV PORT=5000
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY --from=builder /app/dist ./dist
+
 EXPOSE 5000
-ENV ASPNETCORE_URLS=http://+:5000
-ENTRYPOINT ["dotnet", "JobAgent.API.dll"]
+
+CMD ["node", "dist/index.js"]

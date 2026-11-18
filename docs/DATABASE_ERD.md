@@ -256,3 +256,4 @@ WITH (m = 16, ef_construction = 64);
 - `Applications`: `id`, `user_id`, `job_id`, `status` (`Saved`, `Applied`, `Interviewing`, `Offered`, `Rejected`, `Withdrawn`), `applied_at`, `notes`, `updated_at`.
 - `Notifications`: `id`, `user_id`, `type`, `title`, `message`, `data (JSONB)`, `is_read`, `created_at`.
 - `AuditLogs`: `id`, `user_id`, `action`, `resource_type`, `resource_id`, `details (JSONB)`, `ip_address`, `created_at`.
+

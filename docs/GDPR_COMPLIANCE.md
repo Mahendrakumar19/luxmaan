@@ -61,3 +61,4 @@ Under the **EU Artificial Intelligence Act (Regulation (EU) 2024/1689)**:
    - In Transit: TLS 1.3 encryption mandatory on all public endpoints.
    - At Rest: AES-256 server-side encryption for all stored resumes and database volumes.
 3. **Separation of Secrets:** API keys and credentials are never stored in plain text; environment secrets managed via AWS Secrets Manager / Vault.
+

@@ -74,3 +74,4 @@ class JobNormalizer:
             reqs.append({"lang": "German", "level": "B1"})
 
         return reqs
+
