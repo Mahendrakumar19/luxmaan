@@ -1,0 +1,248 @@
+import { Job, JobMatch, CandidateProfile, AdminKPIs, JobSource, User } from '@/types';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+
+// Seed mock data for interactive demonstration and fallback
+const MOCK_JOBS: Job[] = [
+  {
+    id: "job-1",
+    title: "Senior Cloud Software Engineer (m/w/d) - .NET / AWS",
+    companyName: "Siemens AG",
+    companyLogoUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=100&h=100&fit=crop",
+    locationCity: "Munich",
+    locationCountry: "Germany",
+    workplaceType: "Hybrid",
+    employmentType: "FullTime",
+    experienceLevel: "Senior",
+    salaryMin: 80000,
+    salaryMax: 95000,
+    salaryCurrency: "EUR",
+    requiredSkills: ["C#", ".NET", "AWS", "Docker", "PostgreSQL", "Microservices"],
+    requiredLanguages: [{ lang: "German", level: "B2" }, { lang: "English", level: "Fluent" }],
+    description: "Wir suchen für unser Smart Infrastructure Team in München einen erfahrenen Senior Cloud Software Engineer mit fundierten C#, .NET 10 und Cloud-Kenntnissen.",
+    postedAt: "2026-11-17T09:00:00Z",
+    applicationUrl: "https://jobs.siemens.com/careers/cloud-engineer"
+  },
+  {
+    id: "job-2",
+    title: "Full-Stack Developer (React / Next.js / TypeScript)",
+    companyName: "Zalando SE",
+    companyLogoUrl: "https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=100&h=100&fit=crop",
+    locationCity: "Berlin",
+    locationCountry: "Germany",
+    workplaceType: "Hybrid",
+    employmentType: "FullTime",
+    experienceLevel: "MidLevel",
+    salaryMin: 70000,
+    salaryMax: 84000,
+    salaryCurrency: "EUR",
+    requiredSkills: ["React", "Next.js", "TypeScript", "Node.js", "GraphQL", "Tailwind CSS"],
+    requiredLanguages: [{ lang: "English", level: "Fluent" }],
+    description: "Join Europe's leading online fashion platform in Berlin. You will build high-traffic customer interfaces using React, Next.js, and TypeScript.",
+    postedAt: "2026-11-16T11:00:00Z",
+    applicationUrl: "https://jobs.zalando.com/careers/fullstack"
+  },
+  {
+    id: "job-3",
+    title: "DevOps & Platform Engineer (Kubernetes, Terraform)",
+    companyName: "BMW Group",
+    companyLogoUrl: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=100&h=100&fit=crop",
+    locationCity: "Munich",
+    locationCountry: "Germany",
+    workplaceType: "OnSite",
+    employmentType: "FullTime",
+    experienceLevel: "Senior",
+    salaryMin: 82000,
+    salaryMax: 102000,
+    salaryCurrency: "EUR",
+    requiredSkills: ["Kubernetes", "Terraform", "Docker", "CI/CD", "Linux", "Azure"],
+    requiredLanguages: [{ lang: "German", level: "C1" }, { lang: "English", level: "Fluent" }],
+    description: "Gestalten Sie die Zukunft der Mobilität bei der BMW Group in München. Sie verantworten globale Kubernetes-Cluster und CI/CD Automatisierungen.",
+    postedAt: "2026-11-15T14:30:00Z",
+    applicationUrl: "https://bmwgroup.jobs/platform-devops"
+  },
+  {
+    id: "job-4",
+    title: "AI / Machine Learning Engineer (NLP & Vector Search)",
+    companyName: "Delivery Hero SE",
+    companyLogoUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100&h=100&fit=crop",
+    locationCity: "Berlin",
+    locationCountry: "Germany",
+    workplaceType: "Remote",
+    employmentType: "FullTime",
+    experienceLevel: "Senior",
+    salaryMin: 88000,
+    salaryMax: 110000,
+    salaryCurrency: "EUR",
+    requiredSkills: ["Python", "PyTorch", "NLP", "Machine Learning", "FastAPI", "PostgreSQL"],
+    requiredLanguages: [{ lang: "English", level: "Fluent" }],
+    description: "Delivery Hero is designing semantic search models, multilingual embeddings, and recommendation algorithms serving European markets.",
+    postedAt: "2026-11-14T08:00:00Z",
+    applicationUrl: "https://careers.deliveryhero.com/ai-engineer"
+  }
+];
+
+const MOCK_MATCHES: JobMatch[] = [
+  {
+    id: "match-1",
+    jobId: "job-1",
+    jobTitle: "Senior Cloud Software Engineer (m/w/d) - .NET / AWS",
+    companyName: "Siemens AG",
+    companyLogoUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=100&h=100&fit=crop",
+    locationCity: "Munich",
+    workplaceType: "Hybrid",
+    salaryMin: 80000,
+    salaryMax: 95000,
+    overallMatchScore: 89.2,
+    scores: {
+      skillsScore: 92.0,
+      experienceScore: 90.0,
+      locationScore: 100.0,
+      languageScore: 85.0,
+      salaryScore: 80.0
+    },
+    matchingSkills: ["C#", ".NET", "Docker", "PostgreSQL", "Microservices"],
+    missingSkills: ["AWS"],
+    explanation: {
+      summary: "Excellent 89.2% match based on your skills in C#/.NET and your Munich location preference.",
+      skillsNote: "You possess 5 out of 6 core skills required for this cloud architecture role.",
+      experienceNote: "Your 6 years of experience aligns with Siemens' Senior band (5+ years).",
+      locationNote: "Job is Hybrid in Munich, matching your current city.",
+      languageNote: "Your German C1 and English fluency satisfy European collaboration requirements.",
+      salaryNote: "Compensation band (€80k - €95k) meets your target expectations."
+    },
+    createdAt: "2026-11-18T12:00:00Z"
+  },
+  {
+    id: "match-2",
+    jobId: "job-2",
+    jobTitle: "Full-Stack Developer (React / Next.js / TypeScript)",
+    companyName: "Zalando SE",
+    companyLogoUrl: "https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=100&h=100&fit=crop",
+    locationCity: "Berlin",
+    workplaceType: "Hybrid",
+    salaryMin: 70000,
+    salaryMax: 84000,
+    overallMatchScore: 84.6,
+    scores: {
+      skillsScore: 88.0,
+      experienceScore: 100.0,
+      locationScore: 85.0,
+      languageScore: 95.0,
+      salaryScore: 75.0
+    },
+    matchingSkills: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+    missingSkills: ["GraphQL"],
+    explanation: {
+      summary: "Strong 84.6% match for modern frontend architecture in Berlin.",
+      skillsNote: "Strong match in React, Next.js, and TypeScript ecosystem.",
+      experienceNote: "Your experience comfortably exceeds requirements.",
+      locationNote: "Position is located in Berlin (hybrid option available).",
+      languageNote: "English working language environment perfectly matched.",
+      salaryNote: "Compensation is within reasonable range of your target."
+    },
+    createdAt: "2026-11-18T12:00:00Z"
+  }
+];
+
+export const apiClient = {
+  async getJobs(params?: { q?: string; location?: string; workplaceType?: string }): Promise<Job[]> {
+    try {
+      const query = new URLSearchParams(params as any).toString();
+      const res = await fetch(`${API_BASE}/jobs?${query}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data?.items?.length) return json.data.items;
+      }
+    } catch {
+      // Return fallback
+    }
+    let filtered = [...MOCK_JOBS];
+    if (params?.q) {
+      const term = params.q.toLowerCase();
+      filtered = filtered.filter(j => j.title.toLowerCase().includes(term) || j.companyName.toLowerCase().includes(term));
+    }
+    if (params?.location) {
+      const loc = params.location.toLowerCase();
+      filtered = filtered.filter(j => j.locationCity.toLowerCase().includes(loc));
+    }
+    return filtered;
+  },
+
+  async getMatches(): Promise<JobMatch[]> {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (token) {
+        const res = await fetch(`${API_BASE}/matches`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data?.length) return json.data;
+        }
+      }
+    } catch {}
+    return MOCK_MATCHES;
+  },
+
+  async getAdminKPIs(): Promise<AdminKPIs> {
+    try {
+      const res = await fetch(`${API_BASE}/admin/kpis`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) return json.data;
+      }
+    } catch {}
+    return {
+      totalUsers: 1248,
+      activeCandidates: 984,
+      totalJobs: 1420,
+      jobsIngestedToday: 48,
+      activeSources: 6,
+      totalMatchesCalculated: 3410,
+      ingestionFailuresToday: 0
+    };
+  },
+
+  async getSources(): Promise<JobSource[]> {
+    try {
+      const res = await fetch(`${API_BASE}/admin/sources`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data?.length) return json.data;
+      }
+    } catch {}
+    return [
+      {
+        id: "src-1",
+        sourceName: "Bundesagentur für Arbeit API",
+        sourceType: "API",
+        sourceUrl: "https://rest.arbeitsagentur.de/jobboerse",
+        collectionFrequencyHours: 12,
+        isActive: true,
+        lastSuccessfulRunAt: "2026-11-18T10:00:00Z",
+        totalJobsCollected: 840
+      },
+      {
+        id: "src-2",
+        sourceName: "Siemens Careers Portal",
+        sourceType: "API",
+        sourceUrl: "https://jobs.siemens.com",
+        collectionFrequencyHours: 24,
+        isActive: true,
+        lastSuccessfulRunAt: "2026-11-18T08:30:00Z",
+        totalJobsCollected: 165
+      },
+      {
+        id: "src-3",
+        sourceName: "EU Remote Tech Feed",
+        sourceType: "RSS_FEED",
+        sourceUrl: "https://remotive.com/api/remote-jobs",
+        collectionFrequencyHours: 6,
+        isActive: true,
+        lastSuccessfulRunAt: "2026-11-18T12:15:00Z",
+        totalJobsCollected: 310
+      }
+    ];
+  }
+};
