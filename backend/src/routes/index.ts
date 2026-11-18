@@ -48,3 +48,4 @@ router.post('/gdpr/consent', authenticate, GdprController.recordConsent);
 router.delete('/gdpr/delete-account', authenticate, GdprController.deleteAccount);
 
 export default router;
+
