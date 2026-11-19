@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Automated VPS Provisioning & Deployment Script for nilam.aiwcrm.in
+# Automated VPS Provisioning & Deployment Script for luxmaan.aiwcrm.in
 # Platform: AI Job Agent Platform (Germany & EU)
 # Owner: Nighwan Technology Pvt. Ltd.
 # Target: Ubuntu 22.04 LTS / Debian 12 VPS
@@ -8,7 +8,7 @@
 
 set -e
 
-DOMAIN="nilam.aiwcrm.in"
+DOMAIN="luxmaan.aiwcrm.in"
 EMAIL="admin@aiwcrm.in"
 APP_DIR="/opt/luxmaan"
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Quick Zero-Downtime Redeployment Script for nilam.aiwcrm.in
+# Quick Zero-Downtime Redeployment Script for luxmaan.aiwcrm.in
 # ==============================================================================
 set -e
 
