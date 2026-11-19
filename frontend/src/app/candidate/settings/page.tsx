@@ -29,7 +29,7 @@ export default function GdprSettingsPage() {
       const exportBlob = new Blob([
         JSON.stringify(
           {
-            platform: "Nilam AI - Nighwan Technology Pvt. Ltd.",
+            platform: "Luxmaan AI - Nighwan Technology Pvt. Ltd.",
             gdprArticle: "Article 20 - Right to Data Portability",
             user: {
               email: "candidate@example.de",
@@ -56,7 +56,7 @@ export default function GdprSettingsPage() {
       const url = URL.createObjectURL(exportBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "nilam-candidate-data-export.json";
+      a.download = "luxmaan-candidate-data-export.json";
       a.click();
       URL.revokeObjectURL(url);
     }, 1000);

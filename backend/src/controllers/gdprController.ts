@@ -16,7 +16,7 @@ export class GdprController {
     }
 
     const exportBundle = {
-      platform: 'Nilam AI - Nighwan Technology Pvt. Ltd.',
+      platform: 'Luxmaan AI - Nighwan Technology Pvt. Ltd.',
       jurisdiction: 'European Union (GDPR / DSGVO)',
       article: 'Article 20 - Right to Data Portability',
       exportedAt: new Date().toISOString(),

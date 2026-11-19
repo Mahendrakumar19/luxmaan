@@ -18,7 +18,7 @@ export function Navbar() {
             </div>
             <div>
               <span className="text-xl font-bold tracking-tight text-slate-900">
-                Nilam<span className="text-brand-600">AI</span>
+                Luxmaan<span className="text-brand-600">AI</span>
               </span>
               <span className="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] font-semibold bg-slate-100 text-slate-600 rounded-full border border-slate-200">
                 Germany / EU

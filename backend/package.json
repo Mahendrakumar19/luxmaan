@@ -1,7 +1,7 @@
 {
-  "name": "jobagent-backend-node",
+  "name": "luxmaan-backend-node",
   "version": "1.0.0",
-  "description": "AI Job Agent Platform Backend - Node.js TypeScript API for Germany & EU",
+  "description": "Luxmaan AI Job Agent Platform Backend - Node.js TypeScript API for Germany & EU",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

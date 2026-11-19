@@ -10,7 +10,7 @@ set -e
 
 DOMAIN="nilam.aiwcrm.in"
 EMAIL="admin@aiwcrm.in"
-APP_DIR="/opt/nilam"
+APP_DIR="/opt/luxmaan"
 
 echo "=========================================================="
 echo " Starting VPS Deployment for: $DOMAIN"
@@ -70,25 +70,25 @@ fi
 cd "$APP_DIR"
 
 # 6. Build and Start the Unified Container
-echo "[5/6] Building and running Nilam All-in-One Container..."
+echo "[5/6] Building and running Luxmaan All-in-One Container..."
 # Stop previous container if running
-docker rm -f nilam_all_in_one 2>/dev/null || true
+docker rm -f luxmaan_all_in_one 2>/dev/null || true
 
 # Build the all-in-one image
-docker build -t nilam-jobagent:latest .
+docker build -t luxmaan-jobagent:latest .
 
 # Run the unified container bound to 127.0.0.1 for local host proxying
 docker run -d \
-  --name nilam_all_in_one \
+  --name luxmaan_all_in_one \
   --restart always \
   -p 127.0.0.1:3000:3000 \
   -p 127.0.0.1:5000:5000 \
   -p 127.0.0.1:8000:8000 \
   -p 127.0.0.1:5432:5432 \
   -p 127.0.0.1:6379:6379 \
-  -v nilam_pgdata:/var/lib/postgresql \
-  -v nilam_redisdata:/var/lib/redis \
-  nilam-jobagent:latest
+  -v luxmaan_pgdata:/var/lib/postgresql \
+  -v luxmaan_redisdata:/var/lib/redis \
+  luxmaan-jobagent:latest
 
 # 7. Configure Nginx & SSL Certificate
 echo "[6/6] Configuring Nginx & SSL for $DOMAIN..."
@@ -141,5 +141,5 @@ echo " 🎉 Deployment Complete!"
 echo " Web UI:     https://$DOMAIN"
 echo " API Status: https://$DOMAIN/api/v1/health (or :5000)"
 echo " AI Service: https://$DOMAIN/ai/health"
-echo " Container:  docker logs -f nilam_all_in_one"
+echo " Container:  docker logs -f luxmaan_all_in_one"
 echo "=========================================================="

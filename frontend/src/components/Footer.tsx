@@ -13,7 +13,7 @@ export function Footer() {
                 <Sparkles className="w-4 h-4" />
               </div>
               <span className="text-xl font-bold tracking-tight text-white">
-                Nilam<span className="text-brand-400">AI</span>
+                Luxmaan<span className="text-brand-400">AI</span>
               </span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">

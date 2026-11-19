@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  nilam-platform:
+  luxmaan-platform:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nilam_all_in_one
+    container_name: luxmaan_all_in_one
     restart: unless-stopped
     ports:
       # Unified Nginx Gateway (Frontend + APIs under one port)
@@ -17,8 +17,8 @@ services:
       - "5432:5432"   # PostgreSQL 16 + pgvector
       - "6379:6379"   # Redis 7 Cache
     volumes:
-      - nilam_pgdata:/var/lib/postgresql
-      - nilam_redisdata:/var/lib/redis
+      - luxmaan_pgdata:/var/lib/postgresql
+      - luxmaan_redisdata:/var/lib/redis
     environment:
       - NODE_ENV=production
       - ENVIRONMENT=production
@@ -26,5 +26,5 @@ services:
       - INGESTION_INTERVAL_MINUTES=60
 
 volumes:
-  nilam_pgdata:
-  nilam_redisdata:
+  luxmaan_pgdata:
+  luxmaan_redisdata:

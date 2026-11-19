@@ -4,7 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Nilam AI | AI Job Agent Platform for Germany & Europe",
+  title: "Luxmaan AI | AI Job Agent Platform for Germany & Europe",
   description: "Next-generation AI Job Aggregator & Semantic Matching Platform by Nighwan Technology Pvt. Ltd.",
 };
 

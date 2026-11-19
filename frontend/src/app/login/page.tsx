@@ -30,7 +30,7 @@ export default function LoginPage() {
             <Sparkles className="w-6 h-6" />
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Sign In to Nilam AI
+            Sign In to Luxmaan AI
           </h1>
           <p className="text-xs text-slate-500">
             Access your candidate profile and personalized job recommendations.

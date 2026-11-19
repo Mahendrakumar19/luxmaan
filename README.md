@@ -1,4 +1,4 @@
-# AI Job Agent Platform (Germany & European Union)
+# Luxmaan AI - Job Agent Platform (Germany & European Union)
 **Owner:** Nighwan Technology Pvt. Ltd.  
 **Platform Version:** 1.0.0 (Production-Ready Architecture)  
 **Target Markets:** Germany (DE) & European Union (EU)  
@@ -65,18 +65,18 @@ Run the entire platform (Frontend, Backend, AI Microservice, Crawler, PostgreSQL
 **Using Docker CLI:**
 ```bash
 # Build the unified image
-docker build -t nilam-jobagent:latest .
+docker build -t luxmaan-jobagent:latest .
 
 # Run the single container
 docker run -d \
-  --name nilam_all_in_one \
+  --name luxmaan_all_in_one \
   -p 3000:3000 \
   -p 5000:5000 \
   -p 8000:8000 \
   -p 80:80 \
-  -v nilam_pgdata:/var/lib/postgresql \
-  -v nilam_redisdata:/var/lib/redis \
-  nilam-jobagent:latest
+  -v luxmaan_pgdata:/var/lib/postgresql \
+  -v luxmaan_redisdata:/var/lib/redis \
+  luxmaan-jobagent:latest
 ```
 
 **Or using PowerShell / Bash scripts:**
