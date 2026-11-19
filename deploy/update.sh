@@ -30,6 +30,7 @@ docker run -d \
   --label "traefik.http.routers.luxmaan.entrypoints=web,websecure" \
   --label "traefik.http.routers.luxmaan.rule=Host(\`luxmaan.aiwcrm.in\`)" \
   --label "traefik.http.routers.luxmaan.tls=true" \
+  --label "traefik.http.routers.luxmaan.tls.certresolver=letsencrypt" \
   --label "traefik.http.services.luxmaan.loadbalancer.server.port=80" \
   luxmaan-jobagent:latest
 
