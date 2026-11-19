@@ -78,14 +78,15 @@ docker rm -f luxmaan_all_in_one 2>/dev/null || true
 docker build -t luxmaan-jobagent:latest .
 
 # Run the unified container bound to 127.0.0.1 for local host proxying
+# Uses safe ports (3010, 5010, 8010) to avoid collisions with existing PM2/host services
 docker run -d \
   --name luxmaan_all_in_one \
   --restart always \
-  -p 127.0.0.1:3000:3000 \
-  -p 127.0.0.1:5000:5000 \
-  -p 127.0.0.1:8000:8000 \
-  -p 127.0.0.1:5432:5432 \
-  -p 127.0.0.1:6379:6379 \
+  -p 127.0.0.1:3010:3000 \
+  -p 127.0.0.1:5010:5000 \
+  -p 127.0.0.1:8010:8000 \
+  -p 127.0.0.1:5433:5432 \
+  -p 127.0.0.1:6380:6379 \
   -v luxmaan_pgdata:/var/lib/postgresql \
   -v luxmaan_redisdata:/var/lib/redis \
   luxmaan-jobagent:latest
@@ -106,7 +107,7 @@ server {
     }
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3010;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
