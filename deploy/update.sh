@@ -29,7 +29,7 @@ docker run -d \
   luxmaan-jobagent:latest
 
 echo "=== Reloading Nginx ==="
-nginx -t && systemctl reload nginx
+nginx -t && (systemctl reload nginx || systemctl restart nginx)
 
 echo "=== Done! Checking health ==="
 sleep 5

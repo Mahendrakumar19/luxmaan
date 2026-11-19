@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { 
   Search, 
@@ -19,7 +19,7 @@ import { Job } from "@/types";
 import { apiClient } from "@/lib/api";
 import { formatSalary, formatDate } from "@/lib/utils";
 
-export default function JobSearchPage() {
+function JobSearchContent() {
   const searchParams = useSearchParams();
   const initialQ = searchParams.get("q") || "";
   const initialLoc = searchParams.get("location") || "";
@@ -225,6 +225,19 @@ export default function JobSearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function JobSearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center space-y-3">
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-sm text-slate-500">Loading job search...</p>
+      </div>
+    }>
+      <JobSearchContent />
+    </Suspense>
   );
 }
 

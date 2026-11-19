@@ -115,9 +115,13 @@ server {
 }
 EOF
 
+# Stop apache2 if running so Nginx can bind cleanly
+systemctl stop apache2 2>/dev/null || true
+systemctl disable apache2 2>/dev/null || true
+
 ln -sf "/etc/nginx/sites-available/$DOMAIN" "/etc/nginx/sites-enabled/$DOMAIN"
 rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
+nginx -t && (systemctl reload nginx || systemctl restart nginx || systemctl start nginx)
 
 # Request SSL Certificate from Let's Encrypt
 echo "Requesting Let's Encrypt SSL certificate for $DOMAIN..."
@@ -127,7 +131,7 @@ if certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redi
     # Install full production Nginx config with API & AI routing
     if [ -f "$APP_DIR/deploy/nginx-vps.conf" ]; then
         cp "$APP_DIR/deploy/nginx-vps.conf" "/etc/nginx/sites-available/$DOMAIN"
-        nginx -t && systemctl reload nginx
+        nginx -t && (systemctl reload nginx || systemctl restart nginx)
         echo "Production reverse proxy routes applied."
     fi
 else
