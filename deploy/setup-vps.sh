@@ -120,9 +120,16 @@ EOF
 systemctl stop apache2 2>/dev/null || true
 systemctl disable apache2 2>/dev/null || true
 
+# If Nginx is not active in systemd, clean up any orphaned nginx processes holding port 80
+if ! systemctl is-active --quiet nginx; then
+    echo "Cleaning up any orphaned Nginx processes..."
+    killall -9 nginx 2>/dev/null || true
+    sleep 1
+fi
+
 ln -sf "/etc/nginx/sites-available/$DOMAIN" "/etc/nginx/sites-enabled/$DOMAIN"
 rm -f /etc/nginx/sites-enabled/default
-nginx -t && (systemctl reload nginx || systemctl restart nginx || systemctl start nginx)
+nginx -t && (systemctl restart nginx || systemctl start nginx)
 
 # Request SSL Certificate from Let's Encrypt
 echo "Requesting Let's Encrypt SSL certificate for $DOMAIN..."
