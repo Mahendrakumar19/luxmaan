@@ -5,20 +5,24 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: luxmaan-jobagent:latest
     container_name: luxmaan_all_in_one
-    restart: unless-stopped
+    restart: always
     ports:
-      # Unified Nginx Gateway (Frontend + APIs under one port)
-      - "80:80"
-      # Direct microservice ports (for backward compatibility and direct testing)
-      - "3000:3000"   # Next.js Candidate & Admin Frontend
-      - "5000:5000"   # Node.js TypeScript REST API
-      - "8000:8000"   # Python FastAPI AI Microservice
-      - "5432:5432"   # PostgreSQL 16 + pgvector
-      - "6379:6379"   # Redis 7 Cache
+      - "127.0.0.1:3010:3000"
+      - "127.0.0.1:5010:5000"
+      - "127.0.0.1:8010:8000"
+      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:6380:6379"
     volumes:
       - luxmaan_pgdata:/var/lib/postgresql
       - luxmaan_redisdata:/var/lib/redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.luxmaan.entrypoints=web,websecure"
+      - "traefik.http.routers.luxmaan.rule=Host(`luxmaan.aiwcrm.in`)"
+      - "traefik.http.routers.luxmaan.tls=true"
+      - "traefik.http.services.luxmaan.loadbalancer.server.port=80"
     environment:
       - NODE_ENV=production
       - ENVIRONMENT=production

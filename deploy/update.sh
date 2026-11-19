@@ -10,7 +10,7 @@ cd "$APP_DIR"
 echo "=== Pulling latest changes from Git ==="
 git pull origin main
 
-echo "=== Building new container image ==="
+echo "=== Building container image ==="
 docker build -t luxmaan-jobagent:latest .
 
 echo "=== Restarting container ==="
@@ -26,13 +26,15 @@ docker run -d \
   -p 127.0.0.1:6380:6379 \
   -v luxmaan_pgdata:/var/lib/postgresql \
   -v luxmaan_redisdata:/var/lib/redis \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.luxmaan.entrypoints=web,websecure" \
+  --label "traefik.http.routers.luxmaan.rule=Host(\`luxmaan.aiwcrm.in\`)" \
+  --label "traefik.http.routers.luxmaan.tls=true" \
+  --label "traefik.http.services.luxmaan.loadbalancer.server.port=80" \
   luxmaan-jobagent:latest
-
-echo "=== Reloading Nginx ==="
-nginx -t && (systemctl reload nginx || systemctl restart nginx)
 
 echo "=== Done! Checking health ==="
 sleep 5
-curl -I http://127.0.0.1:5000/health || true
+curl -I http://127.0.0.1:5010/health || true
 echo "Container status:"
 docker ps --filter "name=luxmaan_all_in_one"

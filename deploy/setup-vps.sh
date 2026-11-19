@@ -77,8 +77,7 @@ docker rm -f luxmaan_all_in_one 2>/dev/null || true
 # Build the all-in-one image
 docker build -t luxmaan-jobagent:latest .
 
-# Run the unified container bound to 127.0.0.1 for local host proxying
-# Uses safe ports (3010, 5010, 8010) to avoid collisions with existing PM2/host services
+# Run the unified container with Traefik labels
 docker run -d \
   --name luxmaan_all_in_one \
   --restart always \
@@ -89,14 +88,24 @@ docker run -d \
   -p 127.0.0.1:6380:6379 \
   -v luxmaan_pgdata:/var/lib/postgresql \
   -v luxmaan_redisdata:/var/lib/redis \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.luxmaan.entrypoints=web,websecure" \
+  --label "traefik.http.routers.luxmaan.rule=Host(\`$DOMAIN\`)" \
+  --label "traefik.http.routers.luxmaan.tls=true" \
+  --label "traefik.http.services.luxmaan.loadbalancer.server.port=80" \
   luxmaan-jobagent:latest
 
-# 7. Configure Nginx & SSL Certificate
-echo "[6/6] Configuring Nginx & SSL for $DOMAIN..."
-mkdir -p /var/www/certbot
+# 7. Configure Reverse Proxy
+if ss -tulpn | grep -q 'traefik'; then
+    echo "[6/6] Traefik detected as primary reverse proxy on this VPS!"
+    echo "Container has been registered with Traefik labels for $DOMAIN."
+    echo "Traefik will automatically manage SSL and route traffic to https://$DOMAIN."
+else
+    echo "[6/6] Configuring Nginx & SSL for $DOMAIN..."
+    mkdir -p /var/www/certbot
 
-# Create initial HTTP-only Nginx config to allow certbot challenge
-cat > "/etc/nginx/sites-available/$DOMAIN" <<EOF
+    # Create initial HTTP-only Nginx config to allow certbot challenge
+    cat > "/etc/nginx/sites-available/$DOMAIN" <<EOF
 server {
     listen 80;
     listen [::]:80;
@@ -116,36 +125,33 @@ server {
 }
 EOF
 
-# Stop apache2 if running so Nginx can bind cleanly
-systemctl stop apache2 2>/dev/null || true
-systemctl disable apache2 2>/dev/null || true
+    # Stop apache2 if running so Nginx can bind cleanly
+    systemctl stop apache2 2>/dev/null || true
+    systemctl disable apache2 2>/dev/null || true
 
-# If Nginx is not active in systemd, clean up any orphaned nginx processes holding port 80
-if ! systemctl is-active --quiet nginx; then
-    echo "Cleaning up any orphaned Nginx processes..."
-    killall -9 nginx 2>/dev/null || true
-    sleep 1
-fi
-
-ln -sf "/etc/nginx/sites-available/$DOMAIN" "/etc/nginx/sites-enabled/$DOMAIN"
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && (systemctl restart nginx || systemctl start nginx)
-
-# Request SSL Certificate from Let's Encrypt
-echo "Requesting Let's Encrypt SSL certificate for $DOMAIN..."
-if certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect; then
-    echo "SSL Certificate issued successfully!"
-    
-    # Install full production Nginx config with API & AI routing
-    if [ -f "$APP_DIR/deploy/nginx-vps.conf" ]; then
-        cp "$APP_DIR/deploy/nginx-vps.conf" "/etc/nginx/sites-available/$DOMAIN"
-        nginx -t && (systemctl reload nginx || systemctl restart nginx)
-        echo "Production reverse proxy routes applied."
+    # Clean up orphaned nginx processes
+    if ! systemctl is-active --quiet nginx; then
+        echo "Cleaning up any orphaned Nginx processes..."
+        killall -9 nginx 2>/dev/null || true
+        sleep 1
     fi
-else
-    echo "Warning: Certbot could not verify domain $DOMAIN automatically."
-    echo "Please ensure your DNS A record points $DOMAIN to this server's public IP address."
-    echo "Once DNS is propagated, run: certbot --nginx -d $DOMAIN"
+
+    ln -sf "/etc/nginx/sites-available/$DOMAIN" "/etc/nginx/sites-enabled/$DOMAIN"
+    rm -f /etc/nginx/sites-enabled/default
+    nginx -t && (systemctl restart nginx || systemctl start nginx)
+
+    # Request SSL Certificate from Let's Encrypt
+    echo "Requesting Let's Encrypt SSL certificate for $DOMAIN..."
+    if certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect; then
+        echo "SSL Certificate issued successfully!"
+        
+        # Install full production Nginx config with API & AI routing
+        if [ -f "$APP_DIR/deploy/nginx-vps.conf" ]; then
+            cp "$APP_DIR/deploy/nginx-vps.conf" "/etc/nginx/sites-available/$DOMAIN"
+            nginx -t && (systemctl reload nginx || systemctl restart nginx)
+            echo "Production reverse proxy routes applied."
+        fi
+    fi
 fi
 
 echo "=========================================================="
