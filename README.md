@@ -59,29 +59,69 @@ Matches are computed using a candidate-side hybrid recommendation model:
 
 ## 🚀 Getting Started
 
-### 1. Run Automated Test Suite
-```bash
-python3 tests/test_platform.py
-```
-*Expected: 5 tests passing in < 0.01s.*
+### ⚡ Option A: All-in-One Docker Container (Single Container — No Separate Services)
+Run the entire platform (Frontend, Backend, AI Microservice, Crawler, PostgreSQL with pgvector, and Redis) inside **one single container**:
 
-### 2. Run Job Ingestion Pipeline
+**Using Docker CLI:**
 ```bash
-PYTHONPATH=crawler-service python3 crawler-service/worker.py
+# Build the unified image
+docker build -t nilam-jobagent:latest .
+
+# Run the single container
+docker run -d \
+  --name nilam_all_in_one \
+  -p 3000:3000 \
+  -p 5000:5000 \
+  -p 8000:8000 \
+  -p 80:80 \
+  -v nilam_pgdata:/var/lib/postgresql \
+  -v nilam_redisdata:/var/lib/redis \
+  nilam-jobagent:latest
 ```
 
-### 3. Deploy Full Stack via Docker Compose
+**Or using PowerShell / Bash scripts:**
+```powershell
+# On Windows:
+.\docker-run.ps1
+
+# On Linux / macOS:
+chmod +x docker-run.sh && ./docker-run.sh
+```
+
+**Or using Docker Compose (Single Container):**
+```bash
+docker compose -f docker-compose.single.yml up -d --build
+```
+
+---
+
+### 📦 Option B: Multi-Service Docker Compose (Distributed)
+If you prefer running each service in its own isolated container:
 ```bash
 cp .env.example .env
 docker compose up -d --build
 ```
 
-Access the interfaces:
-- **Candidate & Public Web App:** `http://localhost:3000`
+---
+
+### 🌐 Accessing the System
+Once running, all interfaces and APIs are immediately accessible:
+- **Candidate & Public Web App:** `http://localhost:3000` (or `http://localhost`)
 - **Candidate Hub:** `http://localhost:3000/candidate/dashboard`
 - **Admin Control Center:** `http://localhost:3000/admin/dashboard`
-- **Backend Swagger OpenAPI:** `http://localhost:5000/swagger`
+- **Backend API & Health:** `http://localhost:5000/health`
+- **Backend API Endpoints:** `http://localhost:5000/api/v1`
 - **AI Microservice Health:** `http://localhost:8000/health`
+- **PostgreSQL Database:** `localhost:5432` (db: `jobagent_db`, user: `jobagent_user`)
+- **Redis Cache:** `localhost:6379`
+
+---
+
+### 🧪 Run Platform Tests
+```bash
+python tests/test_platform.py
+```
+*Expected: 5 tests passing.*
 
 ---
 
