@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, ArrowRight, ShieldCheck, Mail, Lock, User } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck, Mail, Lock, User, AlertCircle, Loader2 } from "lucide-react";
+import { apiClient } from "@/lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -12,11 +13,35 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [consentGiven, setConsentGiven] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!consentGiven) return;
-    router.push("/candidate/dashboard");
+    if (!consentGiven) {
+      setError("Please accept the EU GDPR consent to proceed.");
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await apiClient.register({
+        firstName,
+        lastName,
+        email,
+        password,
+        consentGiven: true
+      });
+      if (res.success && res.data) {
+        router.push("/candidate/dashboard");
+      } else {
+        setError(res.message || "Registration failed.");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to connect to registration service.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,6 +58,13 @@ export default function RegisterPage() {
             Start receiving personalized AI job recommendations in Germany and the EU.
           </p>
         </div>
+
+        {error && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-xs text-rose-700">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+            <span>{error}</span>
+          </div>
+        )}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -103,11 +135,20 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={!consentGiven}
+            disabled={!consentGiven || loading}
             className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-semibold rounded-xl text-xs shadow-md shadow-brand-600/20 transition-all flex items-center justify-center gap-1.5"
           >
-            <span>Register Candidate Profile</span>
-            <ArrowRight className="w-4 h-4" />
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Creating account...</span>
+              </>
+            ) : (
+              <>
+                <span>Register Candidate Profile</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
 

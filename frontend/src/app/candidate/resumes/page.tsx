@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   FileText, 
   UploadCloud, 
@@ -9,53 +9,90 @@ import {
   Sparkles, 
   Download, 
   AlertCircle,
-  Eye
+  Eye,
+  Loader2
 } from "lucide-react";
+import { apiClient } from "@/lib/api";
+import { Resume } from "@/types";
 
 export default function ResumeManagerPage() {
-  const [resumes, setResumes] = useState([
-    {
-      id: "res-1",
-      fileName: "Lukas_Mueller_CV_Senior_Engineer.pdf",
-      fileSize: "245 KB",
-      uploadedAt: "18 Nov 2026",
-      status: "Completed",
-      extractedHeadline: "Senior Cloud & Full-Stack Engineer",
-      extractedSkills: ["C#", ".NET", "ASP.NET Core", "React", "TypeScript", "Docker", "PostgreSQL"],
-      extractedExperience: "6.0 years",
-      languages: "German (C1), English (Fluent)"
-    }
-  ]);
-
+  const [resumes, setResumes] = useState<Resume[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSimulatedUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const fetchResumes = async () => {
+    try {
+      const list = await apiClient.getResumes();
+      setResumes(list || []);
+    } catch (err) {
+      console.error("Failed to load resumes", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResumes();
+  }, []);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
-    setTimeout(() => {
+    setErrorMessage("");
+    setUploadSuccess(false);
+
+    try {
+      const res = await apiClient.uploadResume(file);
+      if (res.success) {
+        setUploadSuccess(true);
+        await fetchResumes();
+        setTimeout(() => setUploadSuccess(false), 5000);
+      } else {
+        setErrorMessage(res.message || "Failed to upload resume");
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || "Network error during upload");
+    } finally {
       setIsUploading(false);
-      setUploadSuccess(true);
-      const newResume = {
-        id: `res-${Date.now()}`,
-        fileName: file.name,
-        fileSize: `${Math.round(file.size / 1024)} KB`,
-        uploadedAt: "Just now",
-        status: "Completed",
-        extractedHeadline: "Software Professional",
-        extractedSkills: ["C#", ".NET", "Kubernetes", "AWS", "Python"],
-        extractedExperience: "5.0 years",
-        languages: "German (B2), English (Fluent)"
-      };
-      setResumes([newResume, ...resumes]);
-      setTimeout(() => setUploadSuccess(false), 4000);
-    }, 1500);
+      // reset file input
+      e.target.value = "";
+    }
   };
 
-  const deleteResume = (id: string) => {
-    setResumes(resumes.filter((r) => r.id !== id));
+  const handleDeleteResume = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this resume? Under GDPR Article 17, it will be permanently erased.")) {
+      return;
+    }
+
+    const success = await apiClient.deleteResume(id);
+    if (success) {
+      setResumes(resumes.filter((r) => r.id !== id));
+    } else {
+      alert("Failed to delete resume");
+    }
+  };
+
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes) return "250 KB";
+    if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    return `${Math.round(bytes / 1024)} KB`;
+  };
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "Recently";
+    try {
+      return new Date(dateStr).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    } catch {
+      return dateStr;
+    }
   };
 
   return (
@@ -73,12 +110,16 @@ export default function ResumeManagerPage() {
       {/* Upload Box */}
       <div className="p-8 bg-white rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand-500 transition-colors text-center space-y-4">
         <div className="w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto">
-          <UploadCloud className="w-8 h-8" />
+          {isUploading ? (
+            <Loader2 className="w-8 h-8 animate-spin" />
+          ) : (
+            <UploadCloud className="w-8 h-8" />
+          )}
         </div>
 
         <div className="space-y-1">
           <div className="text-base font-bold text-slate-800">
-            {isUploading ? "Parsing resume with multilingual AI..." : "Upload your resume (PDF or DOCX)"}
+            {isUploading ? "Uploading & parsing resume with multilingual AI..." : "Upload your resume (PDF or DOCX)"}
           </div>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             Maximum file size: 10MB. Files are encrypted at rest in Frankfurt (AWS `eu-central-1`) and strictly processed under GDPR.
@@ -86,12 +127,12 @@ export default function ResumeManagerPage() {
         </div>
 
         <div className="pt-2">
-          <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm cursor-pointer transition-all">
-            <span>Browse Computer</span>
+          <label className={`inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm cursor-pointer transition-all ${isUploading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+            <span>{isUploading ? "Processing..." : "Browse Computer"}</span>
             <input
               type="file"
               accept=".pdf,.docx,.doc"
-              onChange={handleSimulatedUpload}
+              onChange={handleFileUpload}
               className="hidden"
               disabled={isUploading}
             />
@@ -104,13 +145,22 @@ export default function ResumeManagerPage() {
             Resume parsed and skills synchronized with your profile!
           </div>
         )}
+
+        {errorMessage && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-semibold inline-flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600" />
+            {errorMessage}
+          </div>
+        )}
       </div>
 
       {/* Resumes List */}
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-slate-900">Your Uploaded Resumes</h2>
 
-        {resumes.length === 0 ? (
+        {loading ? (
+          <div className="p-12 text-center text-slate-400">Loading uploaded resumes...</div>
+        ) : resumes.length === 0 ? (
           <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 text-slate-400">
             No resumes uploaded yet. Upload a CV to get started.
           </div>
@@ -128,12 +178,12 @@ export default function ResumeManagerPage() {
                   <div>
                     <h3 className="font-bold text-slate-900 text-base">{r.fileName}</h3>
                     <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
-                      <span>{r.fileSize}</span>
+                      <span>{formatFileSize(r.fileSizeBytes)}</span>
                       <span>•</span>
-                      <span>Uploaded {r.uploadedAt}</span>
+                      <span>Uploaded {formatDate(r.createdAt)}</span>
                       <span>•</span>
                       <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[11px]">
-                        {r.status}
+                        {r.status || "Completed"}
                       </span>
                     </div>
                   </div>
@@ -141,26 +191,12 @@ export default function ResumeManagerPage() {
 
                 <div className="flex items-center gap-2 self-end sm:self-auto">
                   <button
-                    onClick={() => deleteResume(r.id)}
-                    className="p-2 text-slate-400 hover:text-rose-600 transition-colors"
+                    onClick={() => handleDeleteResume(r.id)}
+                    className="p-2 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                     title="Delete resume (GDPR Erasure)"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                </div>
-              </div>
-
-              {/* Parsed Extraction Overview */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
-                <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                  <Sparkles className="w-4 h-4 text-brand-600" />
-                  AI Extracted Insights
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600">
-                  <div>• <strong>Headline:</strong> {r.extractedHeadline}</div>
-                  <div>• <strong>Estimated Tenure:</strong> {r.extractedExperience}</div>
-                  <div>• <strong>Languages:</strong> {r.languages}</div>
-                  <div>• <strong>Identified Skills:</strong> {r.extractedSkills.join(", ")}</div>
                 </div>
               </div>
             </div>
@@ -170,4 +206,3 @@ export default function ResumeManagerPage() {
     </div>
   );
 }
-

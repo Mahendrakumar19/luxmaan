@@ -1,51 +1,106 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
-  User, 
+  User as UserIcon, 
   FileText, 
   Sparkles, 
   Briefcase, 
   CheckCircle2, 
   ArrowRight, 
-  Bookmark, 
   Shield, 
-  ExternalLink,
   Building2,
-  MapPin
+  MapPin,
+  Loader2,
+  LogIn
 } from "lucide-react";
-import { formatSalary } from "@/lib/utils";
+import { apiClient } from "@/lib/api";
+import { CandidateProfile, JobMatch, User } from "@/types";
 
 export default function CandidateDashboardPage() {
-  const profile = {
-    name: "Lukas Müller",
-    headline: "Senior Cloud & Full-Stack Engineer",
-    location: "Munich, Germany",
-    experience: "6.0 years",
-    skills: ["C#", ".NET", "React", "TypeScript", "Docker", "PostgreSQL", "AWS"],
-    languages: ["German (C1)", "English (Fluent)"],
-    profileCompletion: 85
-  };
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<CandidateProfile | null>(null);
+  const [matches, setMatches] = useState<JobMatch[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const recentMatches = [
-    {
-      title: "Senior Cloud Software Engineer (m/w/d) - .NET / AWS",
-      company: "Siemens AG",
-      location: "Munich (Hybrid)",
-      score: 89.2,
-      salary: "€80k - €95k"
-    },
-    {
-      title: "Full-Stack Developer (React / Next.js / TypeScript)",
-      company: "Zalando SE",
-      location: "Berlin (Hybrid)",
-      score: 84.6,
-      salary: "€70k - €84k"
+  useEffect(() => {
+    async function loadData() {
+      const user = apiClient.getUser();
+      setCurrentUser(user);
+
+      try {
+        const [profData, matchData] = await Promise.all([
+          apiClient.getProfile(),
+          apiClient.getMatches()
+        ]);
+        setProfile(profData);
+        setMatches(matchData || []);
+      } catch (err) {
+        console.error("Failed to load dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    loadData();
+  }, []);
+
+  const displayName = currentUser 
+    ? `${currentUser.firstName} ${currentUser.lastName}`
+    : "Candidate";
+
+  const headline = profile?.headline || "Senior Software Engineer";
+  const location = profile?.currentLocation || "Munich, Germany";
+  const experience = profile?.yearsOfExperience ? `${profile.yearsOfExperience} years` : "5.0 years";
+  const skills = profile?.skills && profile.skills.length > 0 
+    ? profile.skills 
+    : ["C#", ".NET", "React", "TypeScript", "Docker", "PostgreSQL", "AWS"];
+
+  const languages = profile?.languages && profile.languages.length > 0
+    ? profile.languages.map(l => `${l.lang} (${l.level})`).join(", ")
+    : "German (C1), English (Fluent)";
+
+  // Dynamic completeness calculation
+  let completeness = 20;
+  if (profile?.headline) completeness += 20;
+  if (profile?.skills && profile.skills.length >= 3) completeness += 20;
+  if (profile?.currentLocation) completeness += 15;
+  if (profile?.yearsOfExperience) completeness += 15;
+  if (profile?.languages && profile.languages.length >= 1) completeness += 10;
+  completeness = Math.min(100, Math.max(30, completeness));
+
+  const recentMatches = matches.slice(0, 3);
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-24 flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
+        <p className="text-sm font-medium text-slate-500">Loading your candidate dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      {/* Unauthenticated notice banner if user is viewing without logging in */}
+      {!currentUser && (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">Viewing in guest mode:</span>
+            <span>Sign in to save your verified profile, upload resumes, and synchronize AI matching.</span>
+          </div>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-colors self-start sm:self-auto"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            Sign In Now
+          </Link>
+        </div>
+      )}
+
       {/* Top Banner */}
       <div className="p-8 bg-gradient-to-r from-brand-900 via-brand-800 to-slate-900 rounded-3xl text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
@@ -54,7 +109,7 @@ export default function CandidateDashboardPage() {
             <span>AI Match Engine Active</span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight">
-            Welcome back, {profile.name}
+            Welcome back, {displayName}
           </h1>
           <p className="text-sm text-brand-200 max-w-xl">
             Your profile is active and scanning verified vacancies across Germany and the European Union.
@@ -73,7 +128,7 @@ export default function CandidateDashboardPage() {
             href="/candidate/profile"
             className="px-4 py-2.5 bg-brand-700/60 hover:bg-brand-700 text-white border border-brand-500/40 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
           >
-            <User className="w-4 h-4" />
+            <UserIcon className="w-4 h-4" />
             Edit Profile
           </Link>
         </div>
@@ -94,12 +149,12 @@ export default function CandidateDashboardPage() {
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-semibold">
               <span className="text-slate-600">Completeness</span>
-              <span className="text-brand-600">{profile.profileCompletion}%</span>
+              <span className="text-brand-600">{completeness}%</span>
             </div>
             <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-brand-600 rounded-full transition-all"
-                style={{ width: `${profile.profileCompletion}%` }}
+                className="h-full bg-brand-600 rounded-full transition-all duration-500"
+                style={{ width: `${completeness}%` }}
               />
             </div>
           </div>
@@ -107,27 +162,27 @@ export default function CandidateDashboardPage() {
           <div className="space-y-3 text-xs text-slate-600 divide-y divide-slate-100">
             <div className="pt-2">
               <span className="text-slate-400 block font-medium">Headline</span>
-              <span className="text-slate-800 font-semibold">{profile.headline}</span>
+              <span className="text-slate-800 font-semibold">{headline}</span>
             </div>
             <div className="pt-2">
               <span className="text-slate-400 block font-medium">Location</span>
-              <span className="text-slate-800 font-semibold">{profile.location}</span>
+              <span className="text-slate-800 font-semibold">{location}</span>
             </div>
             <div className="pt-2">
               <span className="text-slate-400 block font-medium">Experience</span>
-              <span className="text-slate-800 font-semibold">{profile.experience}</span>
+              <span className="text-slate-800 font-semibold">{experience}</span>
             </div>
             <div className="pt-2">
               <span className="text-slate-400 block font-medium">Languages</span>
-              <span className="text-slate-800 font-semibold">{profile.languages.join(", ")}</span>
+              <span className="text-slate-800 font-semibold">{languages}</span>
             </div>
           </div>
 
           {/* Skills */}
           <div className="space-y-2 pt-2">
-            <span className="text-xs font-semibold text-slate-700 block">Verified Skills</span>
+            <span className="text-xs font-semibold text-slate-700 block">Verified Skills ({skills.length})</span>
             <div className="flex flex-wrap gap-1.5">
-              {profile.skills.map((s) => (
+              {skills.map((s) => (
                 <span
                   key={s}
                   className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-medium"
@@ -145,7 +200,7 @@ export default function CandidateDashboardPage() {
               className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition-colors"
             >
               <Shield className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Data Privacy & Consent Settings (GDVO)</span>
+              <span>Data Privacy & Consent Settings (GDPR)</span>
             </Link>
           </div>
         </div>
@@ -155,52 +210,62 @@ export default function CandidateDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-900">Top AI Matches</h2>
-              <p className="text-xs text-slate-500">Based on your C#/.NET background and Munich location</p>
+              <p className="text-xs text-slate-500">Ranked by 384-dimensional semantic embedding similarity</p>
             </div>
             <Link
               href="/candidate/matches"
               className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700"
             >
-              View All Matches
+              View All Matches ({matches.length})
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           <div className="space-y-4">
-            {recentMatches.map((m) => (
-              <div
-                key={m.title}
-                className="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-brand-300 transition-colors"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
-                      {m.score}% Match
-                    </span>
-                    <span className="text-xs font-semibold text-emerald-700">{m.salary}</span>
-                  </div>
-                  <h3 className="font-bold text-slate-900 text-base">{m.title}</h3>
-                  <div className="flex items-center gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1 font-medium text-slate-700">
-                      <Building2 className="w-3.5 h-3.5" />
-                      {m.company}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {m.location}
-                    </span>
-                  </div>
-                </div>
-
-                <Link
-                  href="/candidate/matches"
-                  className="px-4 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 self-start sm:self-center"
-                >
-                  View Details
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+            {recentMatches.length === 0 ? (
+              <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
+                No active matches found. Upload a resume or explore open jobs.
               </div>
-            ))}
+            ) : (
+              recentMatches.map((m) => (
+                <div
+                  key={m.id}
+                  className="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-brand-300 transition-colors"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                        {Math.round(m.overallMatchScore)}% Match
+                      </span>
+                      {m.jobSalaryMin && (
+                        <span className="text-xs font-semibold text-emerald-700">
+                          €{Math.round(m.jobSalaryMin / 1000)}k - €{Math.round((m.jobSalaryMax || m.jobSalaryMin) / 1000)}k
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-base">{m.jobTitle}</h3>
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <span className="flex items-center gap-1 font-medium text-slate-700">
+                        <Building2 className="w-3.5 h-3.5" />
+                        {m.companyName}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5" />
+                        {m.locationCity || "Germany"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/candidate/matches"
+                    className="px-4 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 self-start sm:self-center"
+                  >
+                    View Details
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Quick Actions Card */}
@@ -232,4 +297,3 @@ export default function CandidateDashboardPage() {
     </div>
   );
 }
-

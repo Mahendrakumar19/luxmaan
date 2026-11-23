@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Shield, 
   Download, 
@@ -10,14 +10,23 @@ import {
   Lock, 
   FileCheck 
 } from "lucide-react";
+import { apiClient } from "@/lib/api";
+import { User, CandidateProfile } from "@/types";
 
 export default function GdprSettingsPage() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [aiConsent, setAiConsent] = useState(true);
   const [emailDigestConsent, setEmailDigestConsent] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [exportComplete, setExportComplete] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [accountDeleted, setAccountDeleted] = useState(false);
+
+  useEffect(() => {
+    setCurrentUser(apiClient.getUser());
+    apiClient.getProfile().then(p => setProfile(p));
+  }, []);
 
   const handleExportData = () => {
     setIsExporting(true);
@@ -32,11 +41,13 @@ export default function GdprSettingsPage() {
             platform: "Luxmaan AI - Nighwan Technology Pvt. Ltd.",
             gdprArticle: "Article 20 - Right to Data Portability",
             user: {
-              email: "candidate@example.de",
-              firstName: "Lukas",
-              lastName: "Müller"
+              id: currentUser?.id,
+              email: currentUser?.email || "candidate@example.de",
+              firstName: currentUser?.firstName || "Lukas",
+              lastName: currentUser?.lastName || "Müller",
+              role: currentUser?.role || "Candidate"
             },
-            profile: {
+            profile: profile || {
               headline: "Senior Cloud & Full-Stack Engineer",
               location: "Munich, Germany",
               skills: ["C#", ".NET", "React", "TypeScript", "Docker", "PostgreSQL", "AWS"],
@@ -44,7 +55,7 @@ export default function GdprSettingsPage() {
             },
             consents: [
               { type: "TERMS_AND_PRIVACY", granted: true, timestamp: "2026-11-18T10:00:00Z" },
-              { type: "AI_MATCHING_ANALYSIS", granted: true, timestamp: "2026-11-18T10:00:00Z" }
+              { type: "AI_MATCHING_ANALYSIS", granted: aiConsent, timestamp: new Date().toISOString() }
             ],
             exportTimestamp: new Date().toISOString()
           },
@@ -56,15 +67,16 @@ export default function GdprSettingsPage() {
       const url = URL.createObjectURL(exportBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "luxmaan-candidate-data-export.json";
+      a.download = `luxmaan-gdpr-export-${currentUser?.email || 'candidate'}.json`;
       a.click();
       URL.revokeObjectURL(url);
-    }, 1000);
+    }, 800);
   };
 
   const handleDeleteAccount = () => {
     setDeleteModalOpen(false);
     setAccountDeleted(true);
+    apiClient.clearAuth();
   };
 
   return (

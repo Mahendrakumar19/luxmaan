@@ -1,6 +1,16 @@
-import { Job, JobMatch, CandidateProfile, AdminKPIs, JobSource, User } from '@/types';
+import { Job, JobMatch, CandidateProfile, AdminKPIs, JobSource, User, Resume } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/v1' : 'http://localhost:5000/api/v1');
+
+// Helper to get authorization headers safely
+function getAuthHeaders(): HeadersInit {
+  if (typeof window === 'undefined') return { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+}
 
 // Seed mock data for interactive demonstration and fallback
 const MOCK_JOBS: Job[] = [
@@ -244,6 +254,152 @@ export const apiClient = {
         totalJobsCollected: 310
       }
     ];
+  },
+
+  getToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('token');
+  },
+
+  getUser(): User | null {
+    if (typeof window === 'undefined') return null;
+    const u = localStorage.getItem('user');
+    if (!u) return null;
+    try {
+      return JSON.parse(u);
+    } catch {
+      return null;
+    }
+  },
+
+  setAuth(token: string, user: User) {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+  },
+
+  clearAuth() {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+
+  async login(email: string, password: string): Promise<{ success: boolean; data?: { accessToken: string; user: User }; message?: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const json = await res.json();
+      if (res.ok && json.success && json.data) {
+        this.setAuth(json.data.accessToken, json.data.user);
+        return { success: true, data: json.data, message: json.message };
+      }
+      return { success: false, message: json.message || 'Invalid email or password' };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Unable to connect to login server' };
+    }
+  },
+
+  async register(data: { firstName: string; lastName: string; email: string; password: string; consentGiven?: boolean }): Promise<{ success: boolean; data?: { accessToken: string; user: User }; message?: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (res.ok && json.success && json.data) {
+        this.setAuth(json.data.accessToken, json.data.user);
+        return { success: true, data: json.data, message: json.message };
+      }
+      return { success: false, message: json.message || 'Registration failed' };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Unable to connect to server' };
+    }
+  },
+
+  logout() {
+    this.clearAuth();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
+  },
+
+  async getProfile(): Promise<CandidateProfile | null> {
+    try {
+      const res = await fetch(`${API_BASE}/candidate/profile`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) return json.data;
+      }
+    } catch {}
+    return null;
+  },
+
+  async updateProfile(data: Partial<CandidateProfile>): Promise<{ success: boolean; data?: CandidateProfile; message?: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/candidate/profile`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        return { success: true, data: json.data, message: json.message };
+      }
+      return { success: false, message: json.message || 'Failed to update profile' };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Connection error' };
+    }
+  },
+
+  async getResumes(): Promise<Resume[]> {
+    try {
+      const res = await fetch(`${API_BASE}/candidate/resumes`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) return json.data;
+      }
+    } catch {}
+    return [];
+  },
+
+  async uploadResume(file: File): Promise<{ success: boolean; data?: Resume; message?: string }> {
+    try {
+      const token = this.getToken();
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE}/candidate/resumes/upload`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        return { success: true, data: json.data, message: json.message };
+      }
+      return { success: false, message: json.message || 'Upload failed' };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Connection error' };
+    }
+  },
+
+  async deleteResume(id: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE}/candidate/resumes/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
   }
 };
 

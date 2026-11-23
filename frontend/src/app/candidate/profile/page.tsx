@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
-  User, 
+  User as UserIcon, 
   MapPin, 
   Briefcase, 
   Euro, 
@@ -12,22 +12,24 @@ import {
   Save, 
   Check, 
   Plus, 
-  X 
+  X,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
+import { apiClient } from "@/lib/api";
+import { CandidateProfile } from "@/types";
 
 export default function CandidateProfilePage() {
-  const [headline, setHeadline] = useState("Senior Cloud & Full-Stack Engineer");
-  const [summary, setSummary] = useState(
-    "Senior full-stack engineer with 6 years of experience building distributed microservices using C#, .NET, Docker, and PostgreSQL in Munich."
-  );
-  const [experienceYears, setExperienceYears] = useState("6.0");
+  const [headline, setHeadline] = useState("");
+  const [summary, setSummary] = useState("");
+  const [experienceYears, setExperienceYears] = useState("5.0");
   const [currentCity, setCurrentCity] = useState("Munich, Germany");
   const [remotePreference, setRemotePreference] = useState("Hybrid");
-  const [minSalary, setMinSalary] = useState("80000");
+  const [minSalary, setMinSalary] = useState("75000");
   const [maxSalary, setMaxSalary] = useState("95000");
   const [noticePeriod, setNoticePeriod] = useState("30");
   
-  const [skills, setSkills] = useState([
+  const [skills, setSkills] = useState<string[]>([
     "C#", ".NET", "ASP.NET Core", "React", "TypeScript", "Docker", "PostgreSQL", "AWS"
   ]);
   const [newSkill, setNewSkill] = useState("");
@@ -35,12 +37,47 @@ export default function CandidateProfilePage() {
   const [germanLevel, setGermanLevel] = useState("C1");
   const [englishLevel, setEnglishLevel] = useState("Fluent");
 
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const prof = await apiClient.getProfile();
+        if (prof) {
+          if (prof.headline) setHeadline(prof.headline);
+          if (prof.summary) setSummary(prof.summary);
+          if (prof.yearsOfExperience !== undefined) setExperienceYears(String(prof.yearsOfExperience));
+          if (prof.currentLocation) setCurrentCity(prof.currentLocation);
+          if (prof.remotePreference) setRemotePreference(prof.remotePreference);
+          if (prof.expectedSalaryMin) setMinSalary(String(prof.expectedSalaryMin));
+          if (prof.expectedSalaryMax) setMaxSalary(String(prof.expectedSalaryMax));
+          if (prof.noticePeriodDays) setNoticePeriod(String(prof.noticePeriodDays));
+          if (prof.skills && prof.skills.length > 0) setSkills(prof.skills);
+          
+          if (prof.languages && prof.languages.length > 0) {
+            const de = prof.languages.find(l => l.lang.toLowerCase().includes('german') || l.lang.toLowerCase().includes('deutsch'));
+            if (de) setGermanLevel(de.level);
+            const en = prof.languages.find(l => l.lang.toLowerCase().includes('english'));
+            if (en) setEnglishLevel(en.level);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProfile();
+  }, []);
 
   const handleAddSkill = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
-      setSkills([...skills, newSkill.trim()]);
+    const trimmed = newSkill.trim();
+    if (trimmed && !skills.includes(trimmed)) {
+      setSkills([...skills, trimmed]);
       setNewSkill("");
     }
   };
@@ -49,10 +86,46 @@ export default function CandidateProfilePage() {
     setSkills(skills.filter((s) => s !== sk));
   };
 
-  const handleSave = () => {
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+  const handleSave = async () => {
+    setSaving(true);
+    setErrorMessage("");
+    setSavedSuccess(false);
+
+    const languagesPayload = [
+      { lang: "German", level: germanLevel },
+      { lang: "English", level: englishLevel }
+    ];
+
+    const result = await apiClient.updateProfile({
+      headline,
+      summary,
+      yearsOfExperience: parseFloat(experienceYears) || 0,
+      currentLocation: currentCity,
+      remotePreference: remotePreference as any,
+      expectedSalaryMin: parseInt(minSalary) || undefined,
+      expectedSalaryMax: parseInt(maxSalary) || undefined,
+      noticePeriodDays: parseInt(noticePeriod) || 30,
+      skills,
+      languages: languagesPayload
+    });
+
+    setSaving(false);
+    if (result.success) {
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 4000);
+    } else {
+      setErrorMessage(result.message || "Failed to update profile");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-24 flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
+        <p className="text-sm font-medium text-slate-500">Loading candidate profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -69,9 +142,15 @@ export default function CandidateProfilePage() {
 
         <button
           onClick={handleSave}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all self-start sm:self-auto"
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white rounded-xl text-sm font-semibold shadow-sm transition-all self-start sm:self-auto cursor-pointer"
         >
-          {savedSuccess ? (
+          {saving ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Saving...
+            </>
+          ) : savedSuccess ? (
             <>
               <Check className="w-4 h-4 text-emerald-300" />
               Saved Successfully!
@@ -85,11 +164,25 @@ export default function CandidateProfilePage() {
         </button>
       </div>
 
+      {savedSuccess && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-sm font-medium flex items-center gap-2">
+          <Check className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+          <span>Profile updated and synchronized with backend AI matching engine!</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-sm font-medium flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
       <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
         {/* Personal & Headline */}
         <div className="space-y-4">
           <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-            <User className="w-4 h-4 text-brand-600" />
+            <UserIcon className="w-4 h-4 text-brand-600" />
             Professional Overview
           </h2>
 
@@ -98,6 +191,7 @@ export default function CandidateProfilePage() {
               <label className="text-xs font-semibold text-slate-700">Professional Headline</label>
               <input
                 type="text"
+                placeholder="e.g. Senior Cloud & Full-Stack Engineer"
                 value={headline}
                 onChange={(e) => setHeadline(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 bg-slate-50/50"
@@ -108,6 +202,8 @@ export default function CandidateProfilePage() {
               <input
                 type="number"
                 step="0.5"
+                min="0"
+                max="50"
                 value={experienceYears}
                 onChange={(e) => setExperienceYears(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 bg-slate-50/50"
@@ -119,6 +215,7 @@ export default function CandidateProfilePage() {
             <label className="text-xs font-semibold text-slate-700">Professional Biography / Summary</label>
             <textarea
               rows={3}
+              placeholder="Describe your primary technical focus, frameworks, and architecture experience..."
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 bg-slate-50/50"
@@ -138,6 +235,7 @@ export default function CandidateProfilePage() {
               <label className="text-xs font-semibold text-slate-700">Current City / Location</label>
               <input
                 type="text"
+                placeholder="e.g. Munich, Germany"
                 value={currentCity}
                 onChange={(e) => setCurrentCity(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 bg-slate-50/50"
@@ -256,7 +354,7 @@ export default function CandidateProfilePage() {
                 <button
                   type="button"
                   onClick={() => removeSkill(sk)}
-                  className="hover:text-brand-900"
+                  className="hover:text-brand-900 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -274,7 +372,7 @@ export default function CandidateProfilePage() {
             />
             <button
               type="submit"
-              className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors flex items-center gap-1"
+              className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               Add
@@ -285,4 +383,3 @@ export default function CandidateProfilePage() {
     </div>
   );
 }
-

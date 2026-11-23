@@ -109,3 +109,20 @@ export interface AdminKPIs {
   ingestionFailuresToday: number;
 }
 
+export interface Resume {
+  id: string;
+  userId: string;
+  fileName: string;
+  fileUrl?: string;
+  fileSizeBytes: number;
+  mimeType?: string;
+  isPrimary?: boolean;
+  status: string;
+  createdAt: string;
+  extractedHeadline?: string;
+  extractedSkills?: string[];
+  extractedExperience?: string;
+  languages?: string;
+}
+
+
