@@ -30,7 +30,7 @@ RUN npm ci
 
 COPY frontend/ ./
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+ENV NEXT_PUBLIC_API_URL=/api/v1
 RUN npm run build
 RUN npm prune --production
 
@@ -128,7 +128,7 @@ ENV PORT=5000
 ENV DATABASE_URL="postgresql://jobagent_user:secure_dev_password_2026@127.0.0.1:5432/jobagent_db"
 ENV REDIS_URL="redis://127.0.0.1:6379"
 ENV AI_SERVICE_URL="http://127.0.0.1:8000"
-ENV NEXT_PUBLIC_API_URL="http://localhost:5000/api/v1"
+ENV NEXT_PUBLIC_API_URL="/api/v1"
 ENV BACKEND_INTERNAL_URL="http://127.0.0.1:5000"
 
 # Exposed Ports:

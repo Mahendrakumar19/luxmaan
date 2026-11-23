@@ -1,6 +1,22 @@
 import { Job, JobMatch, CandidateProfile, AdminKPIs, JobSource, User, Resume } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/v1' : 'http://localhost:5000/api/v1');
+function getApiBase(): string {
+  if (typeof window !== 'undefined') {
+    // In browser: always use relative path '/api/v1'.
+    // Traefik/Nginx reverse-proxies this directly to the internal container backend.
+    // This completely prevents any collision with host/client port 5000.
+    const env = process.env.NEXT_PUBLIC_API_URL;
+    if (env && env.startsWith('http') && !env.includes('localhost') && !env.includes('127.0.0.1') && !env.includes(':5000')) {
+      return env;
+    }
+    return '/api/v1';
+  }
+  return process.env.BACKEND_INTERNAL_URL 
+    ? `${process.env.BACKEND_INTERNAL_URL}/api/v1` 
+    : 'http://127.0.0.1:5000/api/v1';
+}
+
+const API_BASE = getApiBase();
 
 // Helper to get authorization headers safely
 function getAuthHeaders(): HeadersInit {
@@ -159,7 +175,7 @@ export const apiClient = {
   async getJobs(params?: { q?: string; location?: string; workplaceType?: string }): Promise<Job[]> {
     try {
       const query = new URLSearchParams(params as any).toString();
-      const res = await fetch(`${API_BASE}/jobs?${query}`);
+      const res = await fetch(`${getApiBase()}/jobs?${query}`);
       if (res.ok) {
         const json = await res.json();
         if (json.data?.items?.length) return json.data.items;
@@ -183,7 +199,7 @@ export const apiClient = {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (token) {
-        const res = await fetch(`${API_BASE}/matches`, {
+        const res = await fetch(`${getApiBase()}/matches`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -197,7 +213,7 @@ export const apiClient = {
 
   async getAdminKPIs(): Promise<AdminKPIs> {
     try {
-      const res = await fetch(`${API_BASE}/admin/kpis`);
+      const res = await fetch(`${getApiBase()}/admin/kpis`);
       if (res.ok) {
         const json = await res.json();
         if (json.data) return json.data;
@@ -216,7 +232,7 @@ export const apiClient = {
 
   async getSources(): Promise<JobSource[]> {
     try {
-      const res = await fetch(`${API_BASE}/admin/sources`);
+      const res = await fetch(`${getApiBase()}/admin/sources`);
       if (res.ok) {
         const json = await res.json();
         if (json.data?.length) return json.data;
@@ -286,7 +302,7 @@ export const apiClient = {
 
   async login(email: string, password: string): Promise<{ success: boolean; data?: { accessToken: string; user: User }; message?: string }> {
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const res = await fetch(`${getApiBase()}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -304,7 +320,7 @@ export const apiClient = {
 
   async register(data: { firstName: string; lastName: string; email: string; password: string; consentGiven?: boolean }): Promise<{ success: boolean; data?: { accessToken: string; user: User }; message?: string }> {
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await fetch(`${getApiBase()}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -329,7 +345,7 @@ export const apiClient = {
 
   async getProfile(): Promise<CandidateProfile | null> {
     try {
-      const res = await fetch(`${API_BASE}/candidate/profile`, {
+      const res = await fetch(`${getApiBase()}/candidate/profile`, {
         headers: getAuthHeaders()
       });
       if (res.ok) {
@@ -342,7 +358,7 @@ export const apiClient = {
 
   async updateProfile(data: Partial<CandidateProfile>): Promise<{ success: boolean; data?: CandidateProfile; message?: string }> {
     try {
-      const res = await fetch(`${API_BASE}/candidate/profile`, {
+      const res = await fetch(`${getApiBase()}/candidate/profile`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(data)
@@ -359,7 +375,7 @@ export const apiClient = {
 
   async getResumes(): Promise<Resume[]> {
     try {
-      const res = await fetch(`${API_BASE}/candidate/resumes`, {
+      const res = await fetch(`${getApiBase()}/candidate/resumes`, {
         headers: getAuthHeaders()
       });
       if (res.ok) {
@@ -375,7 +391,7 @@ export const apiClient = {
       const token = this.getToken();
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`${API_BASE}/candidate/resumes/upload`, {
+      const res = await fetch(`${getApiBase()}/candidate/resumes/upload`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData
@@ -392,7 +408,7 @@ export const apiClient = {
 
   async deleteResume(id: string): Promise<boolean> {
     try {
-      const res = await fetch(`${API_BASE}/candidate/resumes/${id}`, {
+      const res = await fetch(`${getApiBase()}/candidate/resumes/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
