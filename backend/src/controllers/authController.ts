@@ -37,22 +37,21 @@ export class AuthController {
     };
     db.users.set(userId, newUser);
 
-    // Initial Candidate Profile
+    // Initial Clean Candidate Profile
     const profile: CandidateProfile = {
       id: crypto.randomUUID(),
       userId,
-      headline: 'Software Professional',
-      yearsOfExperience: 3.0,
-      preferredLocations: ['Berlin', 'Munich', 'Remote'],
+      headline: '',
+      summary: '',
+      yearsOfExperience: 0,
+      currentLocation: '',
+      preferredLocations: [],
       preferredEmploymentTypes: ['FullTime'],
       remotePreference: 'Flexible',
       expectedSalaryCurrency: 'EUR',
       noticePeriodDays: 30,
-      languages: [
-        { lang: 'English', level: 'Fluent' },
-        { lang: 'German', level: 'B1' }
-      ],
-      skills: ['TypeScript', 'React', 'Node.js'],
+      languages: [],
+      skills: [],
       isProfileComplete: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

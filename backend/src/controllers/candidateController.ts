@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { db } from '../db/store.js';
+import { AiClient } from '../services/aiClient.js';
 import { CandidateProfile, Resume } from '../types/index.js';
 
 export class CandidateController {
@@ -87,7 +88,7 @@ export class CandidateController {
     res.json({ success: true, data: profile, message: 'Profile updated successfully.' });
   }
 
-  static uploadResume(req: Request, res: Response) {
+  static async uploadResume(req: Request, res: Response) {
     const userId = req.user!.id;
     const file = req.file;
 
@@ -108,15 +109,25 @@ export class CandidateController {
 
     db.resumes.set(resumeId, resume);
 
-    // Sync skills with candidate profile
+    // Call real AI parser for resume
+    const parsed = file?.buffer ? await AiClient.parseResume(file.buffer, fileName) : null;
+
+    // Sync extracted skills with candidate profile
     const profile = db.profiles.get(userId);
-    if (profile) {
-      const detected = ['C#', '.NET', 'React', 'TypeScript', 'Docker', 'PostgreSQL', 'AWS'];
-      for (const s of detected) {
-        if (!profile.skills.includes(s)) profile.skills.push(s);
+    if (profile && parsed) {
+      if (parsed.skills && Array.isArray(parsed.skills) && parsed.skills.length > 0) {
+        for (const s of parsed.skills) {
+          if (!profile.skills.includes(s)) profile.skills.push(s);
+        }
       }
-      if (!profile.headline) profile.headline = 'Senior Cloud Software Engineer';
-      profile.yearsOfExperience = Math.max(profile.yearsOfExperience, 5.0);
+      if (parsed.headline) profile.headline = parsed.headline;
+      if (parsed.summary && !profile.summary) profile.summary = parsed.summary;
+      if (parsed.years_of_experience) profile.yearsOfExperience = parsed.years_of_experience;
+      if (parsed.languages && Array.isArray(parsed.languages) && parsed.languages.length > 0) {
+        profile.languages = parsed.languages;
+      }
+      profile.isProfileComplete = true;
+      profile.updatedAt = new Date().toISOString();
       db.profiles.set(userId, profile);
     }
 

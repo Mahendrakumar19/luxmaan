@@ -51,25 +51,29 @@ export default function CandidateDashboardPage() {
     ? `${currentUser.firstName} ${currentUser.lastName}`
     : "Candidate";
 
-  const headline = profile?.headline || "Senior Software Engineer";
-  const location = profile?.currentLocation || "Munich, Germany";
-  const experience = profile?.yearsOfExperience ? `${profile.yearsOfExperience} years` : "5.0 years";
-  const skills = profile?.skills && profile.skills.length > 0 
-    ? profile.skills 
-    : ["C#", ".NET", "React", "TypeScript", "Docker", "PostgreSQL", "AWS"];
+  const headline = profile?.headline && profile.headline.trim() 
+    ? profile.headline 
+    : "Headline not set yet";
+  const location = profile?.currentLocation && profile.currentLocation.trim() 
+    ? profile.currentLocation 
+    : "Location not set";
+  const experience = (profile?.yearsOfExperience !== undefined && profile?.yearsOfExperience !== null && profile.yearsOfExperience > 0)
+    ? `${profile.yearsOfExperience} years` 
+    : "Not specified";
+  const skills = profile?.skills || [];
 
   const languages = profile?.languages && profile.languages.length > 0
     ? profile.languages.map(l => `${l.lang} (${l.level})`).join(", ")
-    : "German (C1), English (Fluent)";
+    : "Not specified";
 
   // Dynamic completeness calculation
-  let completeness = 20;
-  if (profile?.headline) completeness += 20;
-  if (profile?.skills && profile.skills.length >= 3) completeness += 20;
-  if (profile?.currentLocation) completeness += 15;
-  if (profile?.yearsOfExperience) completeness += 15;
+  let completeness = 10;
+  if (profile?.headline && profile.headline.trim()) completeness += 20;
+  if (profile?.skills && profile.skills.length >= 1) completeness += Math.min(30, profile.skills.length * 10);
+  if (profile?.currentLocation && profile.currentLocation.trim()) completeness += 15;
+  if (profile?.yearsOfExperience && profile.yearsOfExperience > 0) completeness += 15;
   if (profile?.languages && profile.languages.length >= 1) completeness += 10;
-  completeness = Math.min(100, Math.max(30, completeness));
+  completeness = Math.min(100, Math.max(10, completeness));
 
   const recentMatches = matches.slice(0, 3);
 
@@ -181,16 +185,20 @@ export default function CandidateDashboardPage() {
           {/* Skills */}
           <div className="space-y-2 pt-2">
             <span className="text-xs font-semibold text-slate-700 block">Verified Skills ({skills.length})</span>
-            <div className="flex flex-wrap gap-1.5">
-              {skills.map((s) => (
-                <span
-                  key={s}
-                  className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-medium"
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
+            {skills.length === 0 ? (
+              <p className="text-xs text-slate-400 italic">No skills added yet. Add skills in Edit Profile or upload a resume.</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {skills.map((s) => (
+                  <span
+                    key={s}
+                    className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-medium"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* GDPR link */}
@@ -224,7 +232,7 @@ export default function CandidateDashboardPage() {
           <div className="space-y-4">
             {recentMatches.length === 0 ? (
               <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
-                No active matches found. Upload a resume or explore open jobs.
+                No active matches found. Add your skills in Edit Profile or upload a CV to calculate AI matches.
               </div>
             ) : (
               recentMatches.map((m) => (

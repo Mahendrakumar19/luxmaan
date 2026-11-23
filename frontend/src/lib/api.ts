@@ -204,11 +204,11 @@ export const apiClient = {
         });
         if (res.ok) {
           const json = await res.json();
-          if (json.data?.length) return json.data;
+          if (Array.isArray(json.data)) return json.data;
         }
       }
     } catch {}
-    return MOCK_MATCHES;
+    return [];
   },
 
   async getAdminKPIs(): Promise<AdminKPIs> {

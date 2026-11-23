@@ -3,6 +3,33 @@ import { CandidateProfile, Job, MatchingWeightsConfig, JobMatch } from '../types
 const AI_BASE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 export class AiClient {
+  static async parseResume(fileBuffer?: Buffer, fileName?: string): Promise<{
+    headline?: string;
+    summary?: string;
+    skills?: string[];
+    years_of_experience?: number;
+    languages?: { lang: string; level: string }[];
+  } | null> {
+    try {
+      if (!fileBuffer) return null;
+      const formData = new FormData();
+      const blob = new Blob([fileBuffer]);
+      formData.append('file', blob, fileName || 'resume.pdf');
+
+      const res = await fetch(`${AI_BASE_URL}/parse-resume`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.error('[AiClient] Resume parsing error:', err);
+    }
+    return null;
+  }
+
   static async calculateMatch(
     candidate: CandidateProfile,
     job: Job,

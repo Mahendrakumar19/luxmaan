@@ -13,6 +13,14 @@ export class MatchesController {
       return;
     }
 
+    if (!profile.skills || profile.skills.length === 0) {
+      res.json({
+        success: true,
+        data: []
+      });
+      return;
+    }
+
     const minScore = req.query.minScore ? Number(req.query.minScore) : 60;
     const limit = req.query.limit ? Number(req.query.limit) : 20;
 

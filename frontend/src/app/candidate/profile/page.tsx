@@ -22,19 +22,16 @@ import { CandidateProfile } from "@/types";
 export default function CandidateProfilePage() {
   const [headline, setHeadline] = useState("");
   const [summary, setSummary] = useState("");
-  const [experienceYears, setExperienceYears] = useState("5.0");
-  const [currentCity, setCurrentCity] = useState("Munich, Germany");
+  const [experienceYears, setExperienceYears] = useState("");
+  const [currentCity, setCurrentCity] = useState("");
   const [remotePreference, setRemotePreference] = useState("Hybrid");
-  const [minSalary, setMinSalary] = useState("75000");
-  const [maxSalary, setMaxSalary] = useState("95000");
+  const [minSalary, setMinSalary] = useState("");
+  const [maxSalary, setMaxSalary] = useState("");
   const [noticePeriod, setNoticePeriod] = useState("30");
-  
-  const [skills, setSkills] = useState<string[]>([
-    "C#", ".NET", "ASP.NET Core", "React", "TypeScript", "Docker", "PostgreSQL", "AWS"
-  ]);
+  const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
 
-  const [germanLevel, setGermanLevel] = useState("C1");
+  const [germanLevel, setGermanLevel] = useState("B1");
   const [englishLevel, setEnglishLevel] = useState("Fluent");
 
   const [loading, setLoading] = useState(true);
@@ -47,15 +44,15 @@ export default function CandidateProfilePage() {
       try {
         const prof = await apiClient.getProfile();
         if (prof) {
-          if (prof.headline) setHeadline(prof.headline);
-          if (prof.summary) setSummary(prof.summary);
-          if (prof.yearsOfExperience !== undefined) setExperienceYears(String(prof.yearsOfExperience));
-          if (prof.currentLocation) setCurrentCity(prof.currentLocation);
-          if (prof.remotePreference) setRemotePreference(prof.remotePreference);
-          if (prof.expectedSalaryMin) setMinSalary(String(prof.expectedSalaryMin));
-          if (prof.expectedSalaryMax) setMaxSalary(String(prof.expectedSalaryMax));
-          if (prof.noticePeriodDays) setNoticePeriod(String(prof.noticePeriodDays));
-          if (prof.skills && prof.skills.length > 0) setSkills(prof.skills);
+          setHeadline(prof.headline || "");
+          setSummary(prof.summary || "");
+          setExperienceYears(prof.yearsOfExperience !== undefined && prof.yearsOfExperience !== null && prof.yearsOfExperience > 0 ? String(prof.yearsOfExperience) : "");
+          setCurrentCity(prof.currentLocation || "");
+          setRemotePreference(prof.remotePreference || "Hybrid");
+          setMinSalary(prof.expectedSalaryMin ? String(prof.expectedSalaryMin) : "");
+          setMaxSalary(prof.expectedSalaryMax ? String(prof.expectedSalaryMax) : "");
+          setNoticePeriod(prof.noticePeriodDays ? String(prof.noticePeriodDays) : "30");
+          setSkills(prof.skills || []);
           
           if (prof.languages && prof.languages.length > 0) {
             const de = prof.languages.find(l => l.lang.toLowerCase().includes('german') || l.lang.toLowerCase().includes('deutsch'));
@@ -345,21 +342,25 @@ export default function CandidateProfilePage() {
           </h2>
 
           <div className="flex flex-wrap gap-2">
-            {skills.map((sk) => (
-              <span
-                key={sk}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-50 text-brand-700 border border-brand-200 text-xs font-medium"
-              >
-                {sk}
-                <button
-                  type="button"
-                  onClick={() => removeSkill(sk)}
-                  className="hover:text-brand-900 cursor-pointer"
+            {skills.length === 0 ? (
+              <p className="text-xs text-slate-400 italic">No skills added yet. Add your technical or domain skills below.</p>
+            ) : (
+              skills.map((sk) => (
+                <span
+                  key={sk}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-50 text-brand-700 border border-brand-200 text-xs font-medium"
                 >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </span>
-            ))}
+                  {sk}
+                  <button
+                    type="button"
+                    onClick={() => removeSkill(sk)}
+                    className="hover:text-brand-900 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </span>
+              ))
+            )}
           </div>
 
           <form onSubmit={handleAddSkill} className="flex gap-2 max-w-sm pt-2">
