@@ -13,7 +13,7 @@ export class AiClient {
     try {
       if (!fileBuffer) return null;
       const formData = new FormData();
-      const blob = new Blob([fileBuffer]);
+      const blob = new Blob([fileBuffer as any]);
       formData.append('file', blob, fileName || 'resume.pdf');
 
       const res = await fetch(`${AI_BASE_URL}/parse-resume`, {
