@@ -237,9 +237,9 @@ export default function CandidateDashboardPage() {
                       <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
                         {Math.round(m.overallMatchScore)}% Match
                       </span>
-                      {m.jobSalaryMin && (
+                      {m.salaryMin && (
                         <span className="text-xs font-semibold text-emerald-700">
-                          €{Math.round(m.jobSalaryMin / 1000)}k - €{Math.round((m.jobSalaryMax || m.jobSalaryMin) / 1000)}k
+                          €{Math.round(m.salaryMin / 1000)}k - €{Math.round((m.salaryMax || m.salaryMin) / 1000)}k
                         </span>
                       )}
                     </div>
