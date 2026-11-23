@@ -54,6 +54,48 @@ class TestPlatformComponents(unittest.TestCase):
         self.assertIn("German", lang_dict)
         self.assertIn("English", lang_dict)
         self.assertTrue(parsed.years_of_experience >= 5.0)
+        self.assertEqual(parsed.current_location, "Berlin, Germany")
+
+    def test_resume_parser_eu_multilingual(self):
+        sample_eu_cv = """
+        Antoine Dubois
+        antoine.dubois@eu-tech.fr
+        +33 6 12 34 56 78
+        Paris, France
+
+        EXPÉRIENCE PROFESSIONNELLE
+        Lead Full-Stack Developer (2020 - 2025)
+        TechSolutions Paris
+        Architecture de microservices avec Python, FastAPI, PostgreSQL, Docker, Kubernetes et React.
+
+        FORMATION
+        Master en Informatique (2018 - 2020)
+        Sorbonne Université
+
+        LANGUES
+        Français: Langue maternelle (C2)
+        Anglais: Courant (C1)
+        Allemand: Intermédiaire (B1)
+        """
+
+        parsed = ResumeParser.parse(sample_eu_cv)
+        self.assertEqual(parsed.first_name, "Antoine")
+        self.assertEqual(parsed.last_name, "Dubois")
+        self.assertEqual(parsed.current_location, "Paris, France")
+        self.assertIn("Python", parsed.skills)
+        self.assertIn("FastAPI", parsed.skills)
+        self.assertIn("Docker", parsed.skills)
+        self.assertIn("Kubernetes", parsed.skills)
+        self.assertIn("React", parsed.skills)
+        self.assertIn("PostgreSQL", parsed.skills)
+
+        langs = {l.lang: l.level for l in parsed.languages}
+        self.assertIn("French", langs)
+        self.assertIn("English", langs)
+        self.assertIn("German", langs)
+        self.assertEqual(langs["French"], "Native / C2")
+        self.assertEqual(langs["English"], "C1")
+        self.assertTrue(parsed.years_of_experience >= 4.0)
 
     def test_multilingual_embeddings(self):
         texts = [

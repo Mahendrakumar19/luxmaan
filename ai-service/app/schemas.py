@@ -29,6 +29,7 @@ class ParsedResumeResponse(BaseModel):
     phone: Optional[str] = None
     headline: Optional[str] = None
     summary: Optional[str] = None
+    current_location: Optional[str] = None
     skills: List[str] = Field(default_factory=list)
     years_of_experience: float = 0.0
     experiences: List[ParsedExperience] = Field(default_factory=list)

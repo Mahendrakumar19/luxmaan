@@ -178,7 +178,7 @@ export const apiClient = {
       const res = await fetch(`${getApiBase()}/jobs?${query}`);
       if (res.ok) {
         const json = await res.json();
-        if (json.data?.items?.length) return json.data.items;
+        if (Array.isArray(json.data?.items)) return json.data.items;
       }
     } catch {
       // Return fallback

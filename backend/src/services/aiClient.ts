@@ -6,6 +6,7 @@ export class AiClient {
   static async parseResume(fileBuffer?: Buffer, fileName?: string): Promise<{
     headline?: string;
     summary?: string;
+    current_location?: string;
     skills?: string[];
     years_of_experience?: number;
     languages?: { lang: string; level: string }[];

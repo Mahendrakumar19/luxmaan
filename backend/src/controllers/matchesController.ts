@@ -25,13 +25,16 @@ export class MatchesController {
     const limit = req.query.limit ? Number(req.query.limit) : 20;
 
     const activeJobs = Array.from(db.jobs.values()).filter(j => j.isActive);
-    const matches: JobMatch[] = [];
 
-    for (const job of activeJobs) {
-      const match = await AiClient.calculateMatch(profile, job, db.weights);
-      if (match.overallMatchScore >= minScore) {
-        matches.push(match);
-      }
+    // Fast parallel evaluation of candidate vs jobs
+    const allCalculations = await Promise.all(
+      activeJobs.map(job => AiClient.calculateMatch(profile, job, db.weights))
+    );
+
+    // Filter by minScore, or gracefully retrieve best available matches
+    let matches = allCalculations.filter(m => m.overallMatchScore >= minScore);
+    if (matches.length === 0) {
+      matches = allCalculations.filter(m => m.overallMatchScore >= 35);
     }
 
     matches.sort((a, b) => b.overallMatchScore - a.overallMatchScore);

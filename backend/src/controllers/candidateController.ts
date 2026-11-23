@@ -123,6 +123,12 @@ export class CandidateController {
       if (parsed.headline) profile.headline = parsed.headline;
       if (parsed.summary && !profile.summary) profile.summary = parsed.summary;
       if (parsed.years_of_experience) profile.yearsOfExperience = parsed.years_of_experience;
+      if (parsed.current_location) {
+        profile.currentLocation = parsed.current_location;
+        if (!profile.preferredLocations.includes(parsed.current_location)) {
+          profile.preferredLocations.push(parsed.current_location);
+        }
+      }
       if (parsed.languages && Array.isArray(parsed.languages) && parsed.languages.length > 0) {
         profile.languages = parsed.languages;
       }
