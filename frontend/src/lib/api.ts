@@ -386,7 +386,7 @@ export const apiClient = {
     return [];
   },
 
-  async uploadResume(file: File): Promise<{ success: boolean; data?: Resume; message?: string }> {
+  async uploadResume(file: File): Promise<{ success: boolean; data?: any; message?: string }> {
     try {
       const token = this.getToken();
       const formData = new FormData();

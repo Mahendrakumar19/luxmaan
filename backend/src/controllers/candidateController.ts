@@ -146,7 +146,9 @@ export class CandidateController {
         fileSizeBytes: resume.fileSizeBytes,
         createdAt: resume.createdAt,
         extractedHeadline: profile?.headline,
-        extractedSkills: profile?.skills
+        extractedSkills: profile?.skills,
+        profile: profile,
+        parsedResume: parsed
       },
       message: 'Resume uploaded and analyzed.'
     });
