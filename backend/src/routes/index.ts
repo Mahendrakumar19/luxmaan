@@ -55,5 +55,22 @@ router.get('/gdpr/export', authenticate, GdprController.exportData);
 router.post('/gdpr/consent', authenticate, GdprController.recordConsent);
 router.delete('/gdpr/delete-account', authenticate, GdprController.deleteAccount);
 
+// 8. Health & Database Diagnostic Routes
+router.get('/health', async (req, res) => {
+  const { checkDatabaseConnection } = await import('../db/connection.js');
+  const dbStatus = await checkDatabaseConnection();
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    database: dbStatus
+  });
+});
+
+router.get('/health/db', async (req, res) => {
+  const { checkDatabaseConnection } = await import('../db/connection.js');
+  const dbStatus = await checkDatabaseConnection();
+  res.status(dbStatus.isConnected ? 200 : 503).json(dbStatus);
+});
+
 export default router;
 
