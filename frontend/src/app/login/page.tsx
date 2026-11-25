@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, ArrowRight, Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
+import { Sparkles, ArrowRight, Lock, Mail, AlertCircle, Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { apiClient } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("candidate@example.de");
   const [password, setPassword] = useState("Candidate2026!");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -92,19 +93,25 @@ export default function LoginPage() {
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
               <label className="text-xs font-semibold text-slate-700">Password</label>
-              <a href="#" className="text-[11px] font-semibold text-brand-600 hover:underline">
-                Forgot password?
-              </a>
             </div>
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50/50">
-              <Lock className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50/50 focus-within:border-brand-500 focus-within:bg-white transition-all">
+              <Lock className="w-4 h-4 text-slate-400 shrink-0" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full text-xs bg-transparent focus:outline-none"
+                placeholder="Enter password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
@@ -148,6 +155,11 @@ export default function LoginPage() {
               Demo Admin
             </button>
           </div>
+        </div>
+
+        <div className="pt-2 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-medium">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span>EU GDPR Compliant • AES-256 Encrypted</span>
         </div>
 
         <div className="text-center text-xs text-slate-500">

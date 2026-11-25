@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Shield, Sparkles, MapPin, Globe } from "lucide-react";
+import { Briefcase, Shield, MapPin, Globe, Building2, CheckCircle2 } from "lucide-react";
 
 export function Footer() {
   return (
@@ -9,114 +9,129 @@ export function Footer() {
           {/* Brand & Mission */}
           <div className="md:col-span-1 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white">
-                <Sparkles className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-xl bg-brand-700 flex items-center justify-center text-white font-bold">
+                <Briefcase className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold tracking-tight text-white">
-                Luxmaan<span className="text-brand-400">AI</span>
+                Luxmaan<span className="text-brand-400">Jobs</span>
               </span>
             </div>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              AI-powered Job Aggregation and Semantic Matching Platform tailored for Germany and the European Union.
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Offizielles Stellenportal & Karriere-Aggregator für Deutschland und die Europäische Union. Verifizierte Vakanzen, transparente Gehaltsdaten und intelligenter Lebenslauf-Abgleich.
             </p>
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <Shield className="w-4 h-4 text-emerald-400" />
-              <span>GDPR / DSGVO Compliant • EU Data Hosting</span>
+              <span>DSGVO / GDPR Konformität • EU Rechenzentrum</span>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Jobs & Branchen */}
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
-              Candidates
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+              Stellenangebote
             </h4>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-2.5 text-xs text-slate-400">
               <li>
-                <Link href="/candidate/jobs" className="hover:text-white transition-colors">
-                  Explore Jobs in Germany
+                <Link href="/candidate/jobs?q=Software" className="hover:text-white transition-colors">
+                  IT & Softwareentwicklung
+                </Link>
+              </li>
+              <li>
+                <Link href="/candidate/jobs?q=Aviation" className="hover:text-white transition-colors">
+                  Luftfahrt & Aerospace
+                </Link>
+              </li>
+              <li>
+                <Link href="/candidate/jobs?q=Project" className="hover:text-white transition-colors">
+                  Projekt- & Programm-Management
+                </Link>
+              </li>
+              <li>
+                <Link href="/candidate/jobs?q=Operations" className="hover:text-white transition-colors">
+                  Logistik & Flughafen-Operations
+                </Link>
+              </li>
+              <li>
+                <Link href="/candidate/jobs?location=Remote" className="hover:text-white transition-colors">
+                  Remote & Homeoffice Jobs (EU)
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Für Bewerber */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+              Bewerber-Service
+            </h4>
+            <ul className="space-y-2.5 text-xs text-slate-400">
+              <li>
+                <Link href="/candidate/resumes" className="hover:text-white transition-colors">
+                  Lebenslauf hochladen & parsen
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/matches" className="hover:text-white transition-colors">
-                  AI Job Recommendations
+                  Job-Empfehlungen (Matching)
                 </Link>
               </li>
               <li>
-                <Link href="/candidate/resumes" className="hover:text-white transition-colors">
-                  CV Parser & Analysis
+                <Link href="/candidate/applications" className="hover:text-white transition-colors">
+                  Bewerbungs-Tracker (Kanban)
                 </Link>
               </li>
-              <li>
-                <Link href="/candidate/profile" className="hover:text-white transition-colors">
-                  Candidate Profile
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Platform */}
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
-              Platform & Governance
-            </h4>
-            <ul className="space-y-2.5 text-sm">
               <li>
                 <Link href="/features" className="hover:text-white transition-colors">
-                  Matching Architecture
-                </Link>
-              </li>
-              <li>
-                <Link href="/admin/dashboard" className="hover:text-white transition-colors">
-                  Admin Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="hover:text-white transition-colors">
-                  Pricing & Sources
+                  Transparente Scoring-Kriterien
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/settings" className="hover:text-white transition-colors">
-                  Privacy & Data Export (GDPR)
+                  Datenauskunft & Löschung (Art. 17 DSGVO)
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Ownership */}
+          {/* Unternehmen & Plattform */}
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
-              Enterprise Ownership
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+              Unternehmen & Rechtliches
             </h4>
-            <div className="text-sm text-slate-400 space-y-2">
+            <div className="text-xs text-slate-400 space-y-2.5">
               <p className="font-semibold text-slate-200">
                 Nighwan Technology Pvt. Ltd.
               </p>
               <p className="text-xs text-slate-400">
-                Target Market: Germany, Austria, Switzerland & EU Member States.
+                Fokusmärkte: Deutschland (DE), Österreich (AT), Schweiz (CH) & EU.
               </p>
-              <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-2">
+              <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-1">
                 <Globe className="w-3.5 h-3.5 text-brand-400" />
-                <span>Frankfurt AWS Region (`eu-central-1`)</span>
+                <span>Hosting: Frankfurt AWS (`eu-central-1`)</span>
+              </div>
+              <div className="pt-2">
+                <Link href="/admin/dashboard" className="text-xs text-slate-500 hover:text-slate-300">
+                  Admin Leitstand
+                </Link>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom row */}
-        <div className="pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
-          <p>
-            © {new Date().getFullYear()} Nighwan Technology Pvt. Ltd. All rights reserved.
-          </p>
+        {/* Bottom bar */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div>
+            © {new Date().getFullYear()} Luxmaan Jobs (Nighwan Technology Pvt. Ltd.). Alle Rechte vorbehalten.
+          </div>
           <div className="flex items-center gap-6">
-            <Link href="/candidate/settings" className="hover:text-slate-400 transition-colors">
-              Privacy Policy (DSGVO)
+            <Link href="/terms" className="hover:text-slate-300 transition-colors">
+              AGB
             </Link>
-            <Link href="/candidate/settings" className="hover:text-slate-400 transition-colors">
-              Terms of Service
+            <Link href="/privacy" className="hover:text-slate-300 transition-colors">
+              Datenschutz
             </Link>
-            <Link href="/contact" className="hover:text-slate-400 transition-colors">
-              Contact & Support
+            <Link href="/impressum" className="hover:text-slate-300 transition-colors">
+              Impressum
             </Link>
           </div>
         </div>
@@ -124,4 +139,3 @@ export function Footer() {
     </footer>
   );
 }
-

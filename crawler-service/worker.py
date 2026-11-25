@@ -27,6 +27,19 @@ async def run_ingestion_cycle():
     print(f"[Crawler Worker] Loaded {len(api_jobs)} jobs from Arbeitsagentur connector.")
 
     print(f"[Crawler Worker] Ingestion batch complete. Total normalized jobs: {len(all_jobs)}")
+
+    # 2. Push ingested jobs to Backend API
+    if all_jobs:
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                res = await client.post(f"{BACKEND_API_URL}/jobs/ingest", json=all_jobs)
+                if res.status_code == 200:
+                    print(f"[Crawler Worker] Successfully posted {len(all_jobs)} jobs to backend database: {res.json().get('message')}")
+                else:
+                    print(f"[Crawler Worker] Backend returned status {res.status_code}: {res.text}")
+        except Exception as net_err:
+            print(f"[Crawler Worker] Could not connect to backend at {BACKEND_API_URL}: {net_err}")
+
     return all_jobs
 
 async def main():

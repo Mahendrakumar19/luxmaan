@@ -89,4 +89,62 @@ export class JobsController {
 
     res.json({ success: true, data: saved });
   }
+
+  static ingestBatch(req: Request, res: Response) {
+    const rawJobs = Array.isArray(req.body) ? req.body : (req.body.jobs || []);
+    let count = 0;
+
+    for (const raw of rawJobs) {
+      if (!raw.title || !raw.company_name && !raw.companyName) continue;
+      
+      const company = raw.companyName || raw.company_name;
+      const title = raw.title;
+      const id = raw.id || `crawled-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      const dedup = raw.dedup_hash || raw.dedupHash || `${company}-${title}-${raw.location_city || raw.locationCity || ''}`.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+      // Check if job already exists with this dedup hash
+      let existingJob: Job | undefined;
+      for (const j of db.jobs.values()) {
+        if (j.dedupHash === dedup) {
+          existingJob = j;
+          break;
+        }
+      }
+
+      const jobRecord: Job = {
+        id: existingJob ? existingJob.id : id,
+        sourceId: raw.source_id || raw.sourceId || 'crawled-feed',
+        externalId: raw.external_id || raw.externalId,
+        title: title,
+        companyName: company,
+        companyLogoUrl: raw.company_logo_url || raw.companyLogoUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&h=100&fit=crop',
+        locationCity: raw.location_city || raw.locationCity || 'Frankfurt am Main',
+        locationCountry: raw.location_country || raw.locationCountry || 'Germany',
+        isRemote: raw.is_remote ?? (raw.workplace_type === 'Remote' || raw.workplaceType === 'Remote'),
+        workplaceType: raw.workplace_type || raw.workplaceType || 'Hybrid',
+        employmentType: raw.employment_type || raw.employmentType || 'FullTime',
+        experienceLevel: raw.experience_level || raw.experienceLevel || 'MidLevel',
+        salaryMin: raw.salary_min || raw.salaryMin,
+        salaryMax: raw.salary_max || raw.salaryMax,
+        salaryCurrency: raw.salary_currency || raw.salaryCurrency || 'EUR',
+        requiredSkills: raw.required_skills || raw.requiredSkills || [],
+        requiredLanguages: raw.required_languages || raw.requiredLanguages || [{ lang: 'English', level: 'Fluent' }],
+        description: raw.description || `${title} at ${company}`,
+        applicationUrl: raw.application_url || raw.applicationUrl || 'https://example-careers.de',
+        postedAt: raw.posted_at || raw.postedAt || new Date().toISOString(),
+        dedupHash: dedup,
+        isActive: true,
+        createdAt: existingJob ? existingJob.createdAt : new Date().toISOString()
+      };
+
+      db.jobs.set(jobRecord.id, jobRecord);
+      count++;
+    }
+
+    res.json({
+      success: true,
+      message: `Ingested ${count} jobs successfully.`,
+      data: { ingested: count, totalJobs: db.jobs.size }
+    });
+  }
 }

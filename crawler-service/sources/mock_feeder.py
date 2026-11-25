@@ -127,6 +127,51 @@ REALISTIC_JOBS = [
         "required_skills": ["Python", "Spark", "Airflow", "PostgreSQL", "Kafka", "Docker"],
         "required_languages": [{"lang": "German", "level": "B2"}, {"lang": "English", "level": "Fluent"}],
         "description": "Bau skalierbarer ETL/ELT-Pipelines für IoT- und Industrie 4.0-Sensordaten bei Bosch in Stuttgart. Arbeiten mit Apache Spark, Kafka und cloudbasierten Data Warehouses."
+    },
+    {
+        "title": "Project Manager - Aviation Operations & Fleet Programs",
+        "company_name": "Lufthansa Group",
+        "company_logo_url": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=100&h=100&fit=crop",
+        "location_city": "Frankfurt am Main",
+        "location_country": "Germany",
+        "workplace_type": "Hybrid",
+        "employment_type": "FullTime",
+        "experience_level": "Senior",
+        "salary_min": 75000,
+        "salary_max": 92000,
+        "required_skills": ["Project Management", "Project Planning", "Stakeholder Management", "Aviation", "SAP ERP", "Risk Assessment", "PRINCE2"],
+        "required_languages": [{"lang": "German", "level": "B2"}, {"lang": "English", "level": "Fluent"}],
+        "description": "Steuern Sie zukunftsweisende Projekte in der Flugbetriebslogistik und Flottenkoordination am Drehkreuz Frankfurt. Leitung von cross-funktionalen Projektteams mit agilen und klassischen Methoden (PRINCE2/PMI)."
+    },
+    {
+        "title": "Aerospace Project Coordinator & Operations Specialist",
+        "company_name": "Airbus Operations GmbH",
+        "company_logo_url": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=100&h=100&fit=crop",
+        "location_city": "Hamburg",
+        "location_country": "Germany",
+        "workplace_type": "Hybrid",
+        "employment_type": "FullTime",
+        "experience_level": "MidLevel",
+        "salary_min": 72000,
+        "salary_max": 88000,
+        "required_skills": ["Project Coordination", "Aerospace", "Budget Monitoring", "Microsoft Project", "Risk Assessment", "CAPM", "Jira"],
+        "required_languages": [{"lang": "English", "level": "Fluent"}, {"lang": "German", "level": "B2"}],
+        "description": "Coordinate aerospace production and sub-assembly programs. Drive milestones, track project budgets, mitigate risks, and collaborate across international Airbus engineering teams."
+    },
+    {
+        "title": "Senior Operations & Project Manager (Flughafen Frankfurt)",
+        "company_name": "Fraport AG",
+        "company_logo_url": "https://images.unsplash.com/photo-1508873696983-2df5703bc20d?w=100&h=100&fit=crop",
+        "location_city": "Frankfurt am Main",
+        "location_country": "Germany",
+        "workplace_type": "OnSite",
+        "employment_type": "FullTime",
+        "experience_level": "Senior",
+        "salary_min": 78000,
+        "salary_max": 95000,
+        "required_skills": ["Project Management", "Operations Management", "Process Improvement", "Stakeholder Management", "Power BI", "SAP ERP"],
+        "required_languages": [{"lang": "German", "level": "B2"}, {"lang": "English", "level": "Fluent"}],
+        "description": "Verantwortung für strategische Flughafenbetriebsprojekte und Prozessoptimierungen am Flughafen Frankfurt. Datenbasierte Steuerung mittels Power BI und SAP ERP in einem dynamischen Aviatik-Umfeld."
     }
 ]
 

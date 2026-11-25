@@ -7,23 +7,25 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+      },
       colors: {
         brand: {
-          50: '#f0f7ff',
-          100: '#e0effe',
-          200: '#bae0fd',
-          300: '#7cc7fb',
-          400: '#36abf7',
-          500: '#0c8fe9',
-          600: '#0171c7',
-          700: '#025aa1',
-          800: '#064d85',
-          900: '#0b416f',
-          950: '#072a4a',
+          50: '#f0f6fe',
+          100: '#ddebfe',
+          200: '#c3ddfc',
+          300: '#98c6fa',
+          400: '#64a7f6',
+          500: '#3b82f6',
+          600: '#1d4ed8', // authoritative corporate blue
+          700: '#1e40af', // deep navy blue
+          800: '#1e3a8a',
+          900: '#0f172a', // executive dark slate
+          950: '#0a0f1d',
         },
       },
     },
   },
   plugins: [],
 };
-

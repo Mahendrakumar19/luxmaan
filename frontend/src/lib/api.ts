@@ -1,4 +1,4 @@
-import { Job, JobMatch, CandidateProfile, AdminKPIs, JobSource, User, Resume } from '@/types';
+import { Job, JobMatch, CandidateProfile, AdminKPIs, JobSource, User, Resume, JobApplication } from '@/types';
 
 function getApiBase(): string {
   if (typeof window !== 'undefined') {
@@ -213,7 +213,9 @@ export const apiClient = {
 
   async getAdminKPIs(): Promise<AdminKPIs> {
     try {
-      const res = await fetch(`${getApiBase()}/admin/kpis`);
+      const res = await fetch(`${getApiBase()}/admin/kpis`, {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         const json = await res.json();
         if (json.data) return json.data;
@@ -232,7 +234,9 @@ export const apiClient = {
 
   async getSources(): Promise<JobSource[]> {
     try {
-      const res = await fetch(`${getApiBase()}/admin/sources`);
+      const res = await fetch(`${getApiBase()}/admin/sources`, {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         const json = await res.json();
         if (json.data?.length) return json.data;
@@ -409,6 +413,115 @@ export const apiClient = {
   async deleteResume(id: string): Promise<boolean> {
     try {
       const res = await fetch(`${getApiBase()}/candidate/resumes/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
+  async toggleSource(id: string, active: boolean): Promise<boolean> {
+    try {
+      const res = await fetch(`${getApiBase()}/admin/sources/${id}/toggle?active=${active}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders()
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
+  async triggerSource(id: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${getApiBase()}/admin/sources/${id}/trigger`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
+  async getWeights(): Promise<any> {
+    try {
+      const res = await fetch(`${getApiBase()}/admin/weights`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return json.data;
+      }
+    } catch {}
+    return null;
+  },
+
+  async updateWeights(weights: {
+    skillsWeight: number;
+    experienceWeight: number;
+    locationWeight: number;
+    languageWeight: number;
+    salaryWeight: number;
+  }): Promise<boolean> {
+    try {
+      const res = await fetch(`${getApiBase()}/admin/weights`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(weights)
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
+  async getApplications(): Promise<JobApplication[]> {
+    try {
+      const res = await fetch(`${getApiBase()}/candidate/applications`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json.data)) return json.data;
+      }
+    } catch {}
+    return [];
+  },
+
+  async createApplication(data: Partial<JobApplication>): Promise<{ success: boolean; data?: JobApplication; message?: string }> {
+    try {
+      const res = await fetch(`${getApiBase()}/candidate/applications`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      return json;
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Failed to create application' };
+    }
+  },
+
+  async updateApplication(id: string, data: Partial<JobApplication>): Promise<{ success: boolean; data?: JobApplication; message?: string }> {
+    try {
+      const res = await fetch(`${getApiBase()}/candidate/applications/${id}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      return json;
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Failed to update application' };
+    }
+  },
+
+  async deleteApplication(id: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${getApiBase()}/candidate/applications/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });

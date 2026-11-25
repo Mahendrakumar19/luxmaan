@@ -125,4 +125,24 @@ export interface Resume {
   languages?: string;
 }
 
+export type ApplicationStatus = 'Interested' | 'Applied' | 'Interview' | 'Offer' | 'Rejected';
+
+export interface JobApplication {
+  id: string;
+  userId: string;
+  jobId?: string;
+  companyName: string;
+  jobTitle: string;
+  locationCity?: string;
+  salary?: string;
+  applicationUrl?: string;
+  status: ApplicationStatus;
+  notes?: string;
+  interviewDate?: string;
+  appliedDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+
 

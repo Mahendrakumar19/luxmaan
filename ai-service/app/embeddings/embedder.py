@@ -1,5 +1,6 @@
 import math
 import hashlib
+import importlib
 import numpy as np
 from typing import List
 
@@ -17,7 +18,8 @@ class EmbeddingService:
             return
         self._attempted = True
         try:
-            from sentence_transformers import SentenceTransformer
+            st_mod = importlib.import_module("sentence_transformers")
+            SentenceTransformer = getattr(st_mod, "SentenceTransformer")
             # Load model if local cache exists
             self._model = SentenceTransformer(MODEL_NAME)
             self._is_loaded = True

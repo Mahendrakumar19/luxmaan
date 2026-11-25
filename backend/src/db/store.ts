@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { User, CandidateProfile, Resume, Job, JobSource, JobMatch, MatchingWeightsConfig, UserConsent } from '../types/index.js';
+import { User, CandidateProfile, Resume, Job, JobSource, JobMatch, MatchingWeightsConfig, UserConsent, JobApplication } from '../types/index.js';
 
 export function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString('hex');
@@ -25,6 +25,7 @@ class DataStore {
   public sources: Map<string, JobSource> = new Map();
   public jobs: Map<string, Job> = new Map();
   public savedJobs: Set<string> = new Set(); // userId:jobId
+  public applications: Map<string, JobApplication> = new Map();
   public consents: UserConsent[] = [];
   public weights: MatchingWeightsConfig = {
     skillsWeight: 0.40,
@@ -101,6 +102,59 @@ class DataStore {
       updatedAt: new Date().toISOString()
     };
     this.profiles.set(candidateId, profile);
+
+    // Initial Tracker Applications for Lukas
+    const app1: JobApplication = {
+      id: "app-1",
+      userId: candidateId,
+      jobId: "job-1",
+      companyName: "Siemens AG",
+      jobTitle: "Senior Cloud Software Engineer (m/w/d)",
+      locationCity: "Munich",
+      salary: "€85,000 - €95,000",
+      applicationUrl: "https://jobs.siemens.com/careers/cloud-engineer",
+      status: "Interview",
+      notes: "Technical round scheduled for next Thursday. Review AWS and microservices architecture.",
+      interviewDate: new Date(Date.now() + 4 * 24 * 3600 * 1000).toISOString(),
+      appliedDate: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+      createdAt: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const app2: JobApplication = {
+      id: "app-2",
+      userId: candidateId,
+      jobId: "job-2",
+      companyName: "Zalando SE",
+      jobTitle: "Full-Stack Developer (React / TypeScript)",
+      locationCity: "Berlin",
+      salary: "€75,000 - €84,000",
+      applicationUrl: "https://jobs.zalando.com/careers/fullstack",
+      status: "Applied",
+      notes: "Application submitted via Zalando careers portal with German CV.",
+      appliedDate: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
+      createdAt: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const app3: JobApplication = {
+      id: "app-3",
+      userId: candidateId,
+      jobId: "job-15",
+      companyName: "Lufthansa Group",
+      jobTitle: "Project Manager - Aviation Operations",
+      locationCity: "Frankfurt am Main",
+      salary: "€82,000",
+      applicationUrl: "https://lufthansagroup.careers/project-manager-aviation",
+      status: "Interested",
+      notes: "Need to tailor cover letter highlighting PRINCE2 certification and Frankfurt location.",
+      createdAt: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    this.applications.set(app1.id, app1);
+    this.applications.set(app2.id, app2);
+    this.applications.set(app3.id, app3);
 
     // 2. Seed Job Sources
     const src1: JobSource = {

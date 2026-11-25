@@ -6,6 +6,7 @@ import { JobsController } from '../controllers/jobsController.js';
 import { MatchesController } from '../controllers/matchesController.js';
 import { AdminController } from '../controllers/adminController.js';
 import { GdprController } from '../controllers/gdprController.js';
+import { ApplicationsController } from '../controllers/applicationsController.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
@@ -25,6 +26,7 @@ router.delete('/candidate/resumes/:resumeId', authenticate, CandidateController.
 
 // 3. Job Discovery Routes
 router.get('/jobs', JobsController.search);
+router.post('/jobs/ingest', JobsController.ingestBatch);
 router.get('/jobs/saved', authenticate, JobsController.getSavedJobs);
 router.get('/jobs/:id', JobsController.getById);
 router.post('/jobs/:id/save', authenticate, JobsController.saveJob);
@@ -34,15 +36,21 @@ router.delete('/jobs/:id/save', authenticate, JobsController.unsaveJob);
 router.get('/matches', authenticate, MatchesController.getMatches);
 router.post('/matches/recalculate/:jobId', authenticate, MatchesController.recalculate);
 
-// 5. Admin Control Center Routes
-router.get('/admin/kpis', AdminController.getKpis);
-router.get('/admin/sources', AdminController.getSources);
-router.patch('/admin/sources/:id/toggle', AdminController.toggleSource);
-router.post('/admin/sources/:id/trigger', AdminController.triggerSource);
-router.get('/admin/weights', AdminController.getWeights);
-router.put('/admin/weights', AdminController.updateWeights);
+// 5. Admin Control Center Routes (Strict RBAC Protection)
+router.get('/admin/kpis', authenticate, requireRole(['Admin', 'SuperAdmin']), AdminController.getKpis);
+router.get('/admin/sources', authenticate, requireRole(['Admin', 'SuperAdmin']), AdminController.getSources);
+router.patch('/admin/sources/:id/toggle', authenticate, requireRole(['Admin', 'SuperAdmin']), AdminController.toggleSource);
+router.post('/admin/sources/:id/trigger', authenticate, requireRole(['Admin', 'SuperAdmin']), AdminController.triggerSource);
+router.get('/admin/weights', authenticate, requireRole(['Admin', 'SuperAdmin']), AdminController.getWeights);
+router.put('/admin/weights', authenticate, requireRole(['Admin', 'SuperAdmin']), AdminController.updateWeights);
 
-// 6. GDPR & Compliance Routes
+// 6. Application Tracker (Kanban Board) Routes
+router.get('/candidate/applications', authenticate, ApplicationsController.getApplications);
+router.post('/candidate/applications', authenticate, ApplicationsController.createApplication);
+router.patch('/candidate/applications/:id', authenticate, ApplicationsController.updateApplication);
+router.delete('/candidate/applications/:id', authenticate, ApplicationsController.deleteApplication);
+
+// 7. GDPR & Compliance Routes
 router.get('/gdpr/export', authenticate, GdprController.exportData);
 router.post('/gdpr/consent', authenticate, GdprController.recordConsent);
 router.delete('/gdpr/delete-account', authenticate, GdprController.deleteAccount);

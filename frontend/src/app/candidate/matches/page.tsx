@@ -43,30 +43,30 @@ export default function MatchesPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-200 text-xs font-semibold text-brand-700">
-            <BrainCircuit className="w-3.5 h-3.5" />
-            <span>AI Semantic Matching Engine</span>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+            <Sliders className="w-3.5 h-3.5 text-brand-700" />
+            <span>Verifizierter Profilabgleich • Transparente Kriterien</span>
           </div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Personalized Job Matches
+            Passgenaue Stellenangebote
           </h1>
           <p className="text-sm text-slate-600">
-            Ranked via 384-dimensional multilingual vector embeddings and weighted compatibility rules.
+            Berechnet nach Hard Skills, Berufserfahrung, Gehaltsrahmen und Sprachprofil.
           </p>
         </div>
 
         {/* Weights pill badge */}
-        <div className="bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 text-xs text-slate-600">
-          <span className="font-semibold text-slate-800">Scoring Model:</span>
+        <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3 text-xs text-slate-600">
+          <span className="font-bold text-slate-800">Scoring-Kriterien:</span>
           <span>Skills 40%</span>
           <span>•</span>
-          <span>Exp 25%</span>
+          <span>Erfahrung 25%</span>
           <span>•</span>
-          <span>Loc 15%</span>
+          <span>Standort 15%</span>
           <span>•</span>
-          <span>Lang 10%</span>
+          <span>Sprachen 10%</span>
           <span>•</span>
-          <span>Salary 10%</span>
+          <span>Gehalt 10%</span>
         </div>
       </div>
 
@@ -138,9 +138,9 @@ export default function MatchesPage() {
 
                     <a
                       href="#"
-                      className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
+                      className="px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5"
                     >
-                      Apply Now
+                      Bewerben
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
@@ -150,11 +150,11 @@ export default function MatchesPage() {
                 {isExpanded && (
                   <div className="bg-slate-50 p-6 border-t border-slate-200 space-y-6">
                     {/* Natural language summary alert */}
-                    <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-sm flex items-start gap-3">
-                      <Sparkles className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                    <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" />
                       <div className="space-y-1">
-                        <div className="font-semibold text-sm text-slate-900">
-                          Why this job is recommended for you
+                        <div className="font-bold text-sm text-slate-900">
+                          Begründung des Abgleichs (Transparenz nach DSGVO)
                         </div>
                         <p className="text-xs text-slate-600 leading-relaxed">
                           {m.explanation.summary}

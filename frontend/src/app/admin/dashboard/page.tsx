@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Users, 
   Briefcase, 
@@ -13,12 +14,14 @@ import {
   RefreshCw,
   Clock,
   ShieldCheck,
-  Check
+  Check,
+  LogOut
 } from "lucide-react";
 import { AdminKPIs, JobSource } from "@/types";
 import { apiClient } from "@/lib/api";
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [kpis, setKpis] = useState<AdminKPIs | null>(null);
   const [sources, setSources] = useState<JobSource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,35 +37,61 @@ export default function AdminDashboardPage() {
   const [triggerSuccess, setTriggerSuccess] = useState<string | null>(null);
 
   useEffect(() => {
+    const user = apiClient.getUser();
+    if (!user || (user.role !== 'Admin' && user.role !== 'SuperAdmin')) {
+      router.push("/login");
+      return;
+    }
+
     async function load() {
       setLoading(true);
-      const [k, s] = await Promise.all([
+      const [k, s, w] = await Promise.all([
         apiClient.getAdminKPIs(),
-        apiClient.getSources()
+        apiClient.getSources(),
+        apiClient.getWeights()
       ]);
       setKpis(k);
       setSources(s);
+      if (w) {
+        setSkillsWeight(Math.round(w.skillsWeight <= 1 ? w.skillsWeight * 100 : w.skillsWeight));
+        setExpWeight(Math.round(w.experienceWeight <= 1 ? w.experienceWeight * 100 : w.experienceWeight));
+        setLocWeight(Math.round(w.locationWeight <= 1 ? w.locationWeight * 100 : w.locationWeight));
+        setLangWeight(Math.round(w.languageWeight <= 1 ? w.languageWeight * 100 : w.languageWeight));
+        setSalWeight(Math.round(w.salaryWeight <= 1 ? w.salaryWeight * 100 : w.salaryWeight));
+      }
       setLoading(false);
     }
     load();
-  }, []);
+  }, [router]);
 
   const totalWeight = skillsWeight + expWeight + locWeight + langWeight + salWeight;
 
-  const handleSaveWeights = () => {
+  const handleSaveWeights = async () => {
     if (totalWeight !== 100) return;
-    setWeightSaveSuccess(true);
-    setTimeout(() => setWeightSaveSuccess(false), 3000);
+    const ok = await apiClient.updateWeights({
+      skillsWeight,
+      experienceWeight: expWeight,
+      locationWeight: locWeight,
+      languageWeight: langWeight,
+      salaryWeight: salWeight
+    });
+    if (ok) {
+      setWeightSaveSuccess(true);
+      setTimeout(() => setWeightSaveSuccess(false), 3000);
+    }
   };
 
-  const handleTriggerIngestion = (sourceName: string) => {
+  const handleTriggerIngestion = async (sourceId: string, sourceName: string) => {
+    await apiClient.triggerSource(sourceId);
     setTriggerSuccess(sourceName);
     setTimeout(() => setTriggerSuccess(null), 3000);
   };
 
-  const toggleSourceActive = (id: string) => {
+  const toggleSourceActive = async (id: string, currentActive: boolean) => {
+    const nextActive = !currentActive;
+    await apiClient.toggleSource(id, nextActive);
     setSources(
-      sources.map((s) => (s.id === id ? { ...s, isActive: !s.isActive } : s))
+      sources.map((s) => (s.id === id ? { ...s, isActive: nextActive } : s))
     );
   };
 
@@ -173,7 +202,7 @@ export default function AdminDashboardPage() {
 
                 <div className="flex items-center gap-3 self-end sm:self-auto">
                   <button
-                    onClick={() => toggleSourceActive(s.id)}
+                    onClick={() => toggleSourceActive(s.id, s.isActive)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                       s.isActive
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -184,7 +213,7 @@ export default function AdminDashboardPage() {
                   </button>
 
                   <button
-                    onClick={() => handleTriggerIngestion(s.sourceName)}
+                    onClick={() => handleTriggerIngestion(s.id, s.sourceName)}
                     className="p-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs transition-colors flex items-center gap-1 shadow-sm"
                     title="Trigger immediate collection"
                   >
