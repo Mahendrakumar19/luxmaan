@@ -27,6 +27,7 @@ class ParsedResumeResponse(BaseModel):
     last_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
+    linkedin_url: Optional[str] = None
     headline: Optional[str] = None
     summary: Optional[str] = None
     current_location: Optional[str] = None
@@ -41,6 +42,7 @@ class EmbedRequest(BaseModel):
     texts: List[str]
 
 class EmbedResponse(BaseModel):
+    model_config = {"protected_namespaces": ()}
     embeddings: List[List[float]]
     dimensions: int
     model_version: str
