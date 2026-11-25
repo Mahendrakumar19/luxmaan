@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { db } from '../db/store.js';
 import { AiClient } from '../services/aiClient.js';
+import { FallbackParser } from '../services/fallbackParser.js';
 import { CandidateProfile, Resume } from '../types/index.js';
 
 export class CandidateController {
@@ -110,7 +111,25 @@ export class CandidateController {
     db.resumes.set(resumeId, resume);
 
     // Call real AI parser for resume
-    const parsed = file?.buffer ? await AiClient.parseResume(file.buffer, fileName) : null;
+    let parsed: any = file?.buffer ? await AiClient.parseResume(file.buffer, fileName) : null;
+
+    // Resilient fallback parser if AI service returned empty or is offline
+    if ((!parsed || !parsed.skills || parsed.skills.length === 0) && file?.buffer) {
+      try {
+        console.log('[CandidateController] Applying FallbackParser for resume extraction');
+        const fb = FallbackParser.parse(file.buffer, fileName);
+        parsed = {
+          headline: parsed?.headline || fb.headline,
+          summary: parsed?.summary || fb.summary,
+          current_location: parsed?.current_location || fb.current_location,
+          skills: (parsed?.skills && parsed.skills.length > 0) ? parsed.skills : fb.skills,
+          years_of_experience: parsed?.years_of_experience || fb.years_of_experience,
+          languages: (parsed?.languages && parsed.languages.length > 0) ? parsed.languages : fb.languages
+        };
+      } catch (fbErr) {
+        console.error('[CandidateController] FallbackParser error:', fbErr);
+      }
+    }
 
     // Sync extracted skills with candidate profile
     const profile = db.profiles.get(userId);

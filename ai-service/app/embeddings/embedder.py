@@ -10,9 +10,12 @@ class EmbeddingService:
     def __init__(self):
         self._model = None
         self._is_loaded = False
-        self._attempt_load_model()
+        self._attempted = False
 
     def _attempt_load_model(self):
+        if self._attempted:
+            return
+        self._attempted = True
         try:
             from sentence_transformers import SentenceTransformer
             # Load model if local cache exists
@@ -24,6 +27,8 @@ class EmbeddingService:
             self._is_loaded = False
 
     def embed_texts(self, texts: List[str]) -> List[List[float]]:
+        if not self._attempted:
+            self._attempt_load_model()
         if self._is_loaded and self._model is not None:
             embeddings = self._model.encode(texts, normalize_embeddings=True)
             return embeddings.tolist()

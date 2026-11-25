@@ -51,12 +51,18 @@ async def parse_resume(
     if file:
         file_bytes = await file.read()
         filename = (file.filename or "").lower()
-        if filename.endswith(".pdf"):
+        if filename.endswith(".pdf") or b"%PDF" in file_bytes[:1024]:
             text_content = ResumeParser.extract_text_from_pdf(file_bytes)
-        elif filename.endswith(".docx") or filename.endswith(".doc"):
+        elif filename.endswith(".docx") or filename.endswith(".doc") or file_bytes.startswith(b"PK"):
             text_content = ResumeParser.extract_text_from_docx(file_bytes)
         else:
             text_content = file_bytes.decode('utf-8', errors='ignore')
+
+        # Fallback if text_content is still empty
+        if not text_content.strip():
+            import re
+            ascii_matches = re.findall(rb'[\x20-\x7E\t\r\n]{4,}', file_bytes)
+            text_content = "\n".join([m.decode('utf-8', errors='ignore') for m in ascii_matches])
     elif raw_text:
         text_content = raw_text
     else:

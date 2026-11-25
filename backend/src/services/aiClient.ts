@@ -14,7 +14,8 @@ export class AiClient {
     try {
       if (!fileBuffer) return null;
       const formData = new FormData();
-      const blob = new Blob([fileBuffer as any]);
+      const mime = (fileName && fileName.endsWith('.docx')) ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf';
+      const blob = new Blob([new Uint8Array(fileBuffer)], { type: mime });
       formData.append('file', blob, fileName || 'resume.pdf');
 
       const res = await fetch(`${AI_BASE_URL}/parse-resume`, {
@@ -24,9 +25,12 @@ export class AiClient {
 
       if (res.ok) {
         return await res.json();
+      } else {
+        const errText = await res.text();
+        console.warn(`[AiClient] Resume parsing returned status ${res.status}:`, errText);
       }
-    } catch (err) {
-      console.error('[AiClient] Resume parsing error:', err);
+    } catch (err: any) {
+      console.warn('[AiClient] Resume parsing error or AI service offline:', err?.message || err);
     }
     return null;
   }
