@@ -20,8 +20,10 @@ import {
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { WorkExperience, EducationItem, CertificationItem } from "@/types";
+import { useLanguage } from "@/lib/i18n";
 
 export default function CandidateProfilePage() {
+  const { t } = useLanguage();
   const [headline, setHeadline] = useState("");
   const [summary, setSummary] = useState("");
   const [sector, setSector] = useState("IT & Cloud Engineering");
@@ -232,10 +234,10 @@ export default function CandidateProfilePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Structured Candidate Profile
+            {t.prof_title}
           </h1>
           <p className="text-sm text-slate-600">
-            Standardized European profile template for accurate job matching, credibility scoring, and tailored CV generation.
+            {t.prof_subtitle}
           </p>
         </div>
 
@@ -252,12 +254,12 @@ export default function CandidateProfilePage() {
           ) : savedSuccess ? (
             <>
               <Check className="w-4 h-4 text-emerald-300" />
-              Saved!
+              {t.prof_saved}
             </>
           ) : (
             <>
               <Save className="w-4 h-4" />
-              Save Template
+              {t.prof_save}
             </>
           )}
         </button>

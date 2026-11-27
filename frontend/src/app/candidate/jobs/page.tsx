@@ -19,8 +19,10 @@ import {
 import { Job, TailoredDocument } from "@/types";
 import { apiClient } from "@/lib/api";
 import { formatSalary, formatDate } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 function JobSearchContent() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const initialQ = searchParams.get("q") || "";
   const initialLoc = searchParams.get("location") || "";
@@ -150,10 +152,10 @@ function JobSearchContent() {
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          Explore Jobs in Germany & EU
+          {t.jobs_title}
         </h1>
         <p className="text-slate-600 text-sm">
-          Optimised multi-platform job search with sector, software, and salary filters — plus 1-click tailored CV & Cover Letter generation.
+          {t.jobs_subtitle}
         </p>
       </div>
 

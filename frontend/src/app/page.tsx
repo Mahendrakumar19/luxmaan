@@ -24,10 +24,12 @@ import {
   ChevronRight,
   ExternalLink
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [locationTerm, setLocationTerm] = useState("");
+  const { t } = useLanguage();
 
   const sampleCompanies = [
     { name: "Lufthansa Group", location: "Frankfurt / München", count: "28 offene Stellen", logo: "LH" },
@@ -102,36 +104,35 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-brand-700/60 border border-brand-500/40 text-xs font-semibold text-white">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              Offizielles Karriereportal für Deutschland & die Europäische Union
+              {t.hero_badge}
             </span>
             <span className="text-xs text-slate-400 hidden sm:inline">
-              15.000+ verifizierte Stellenanzeigen führender Unternehmen
+              {t.hero_subbadge}
             </span>
           </div>
 
           {/* Heading */}
           <div className="space-y-3">
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-              Finde Deinen nächsten Karriereschritt in Deutschland.
+              {t.hero_title}
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed">
-              Direkter Zugang zu geprüften Stellenangeboten bei Top-Konzernen wie Lufthansa, Airbus, Siemens und SAP. 
-              Lade Deinen Lebenslauf hoch für automatischen Präzisionsabgleich nach Hard Skills, Sprachniveau und Gehalt.
+              {t.hero_subtitle}
             </p>
           </div>
 
           {/* StepStone Dual Search Box */}
           <div className="bg-white p-2.5 sm:p-3 rounded-xl shadow-2xl border border-slate-200 flex flex-col md:flex-row gap-2">
-            {/* Input 1: Was? */}
+            {/* Input 1 */}
             <div className="flex-1 flex items-center gap-3 px-3 py-2.5 bg-slate-50 rounded-lg border border-slate-200 focus-within:border-brand-600 focus-within:bg-white transition-all">
               <Search className="w-5 h-5 text-slate-500 shrink-0" />
               <div className="flex-1">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Was suchen Sie?
+                  {t.hero_what_label}
                 </label>
                 <input
                   type="text"
-                  placeholder="Jobtitel, Fachbereich oder Skill (z.B. Java, DevOps, PM)..."
+                  placeholder={t.hero_what_placeholder}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full bg-transparent text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
@@ -139,16 +140,16 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Input 2: Wo? */}
+            {/* Input 2 */}
             <div className="flex-1 flex items-center gap-3 px-3 py-2.5 bg-slate-50 rounded-lg border border-slate-200 focus-within:border-brand-600 focus-within:bg-white transition-all">
               <MapPin className="w-5 h-5 text-slate-500 shrink-0" />
               <div className="flex-1">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Wo?
+                  {t.hero_where_label}
                 </label>
                 <input
                   type="text"
-                  placeholder="Stadt, Bundesland oder 'Remote' (z.B. Berlin, München)..."
+                  placeholder={t.hero_where_placeholder}
                   value={locationTerm}
                   onChange={(e) => setLocationTerm(e.target.value)}
                   className="w-full bg-transparent text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
@@ -162,13 +163,13 @@ export default function HomePage() {
               className="inline-flex items-center justify-center gap-2 bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm px-8 py-3.5 rounded-lg transition-colors shadow-sm shrink-0"
             >
               <Search className="w-4 h-4" />
-              <span>Jobs finden</span>
+              <span>{t.hero_search_btn}</span>
             </Link>
           </div>
 
           {/* Trending Searches */}
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300">
-            <span className="font-semibold text-slate-200">Beliebte Suchen:</span>
+            <span className="font-semibold text-slate-200">{t.hero_trending}</span>
             {[
               { label: "Aviation Project Lead", q: "Aviation" },
               { label: "DevOps & Cloud", q: "DevOps" },
@@ -196,19 +197,19 @@ export default function HomePage() {
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div className="space-y-1 border-r border-slate-100 last:border-none">
             <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">15.000+</div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Aktive Stellenanzeigen</div>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{t.stat_active_jobs}</div>
           </div>
           <div className="space-y-1 border-r border-slate-100 last:border-none">
             <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">1.200+</div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Geprüfte Arbeitgeber</div>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{t.stat_employers}</div>
           </div>
           <div className="space-y-1 border-r border-slate-100 last:border-none">
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600">84%</div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Mit Gehaltstransparenz</div>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{t.stat_salary_trans}</div>
           </div>
           <div className="space-y-1">
             <div className="text-2xl sm:text-3xl font-extrabold text-brand-700">100%</div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">DSGVO & EU Server</div>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{t.stat_gdpr}</div>
           </div>
         </div>
       </section>
@@ -218,17 +219,17 @@ export default function HomePage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 border-b border-slate-200 pb-3">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Top-Arbeitgeber in Deutschland & Europa
+              {t.home_top_employers}
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Direkte Vakanzen aus offiziellen Karriereportalen und ATS-Schnittstellen
+              {t.home_top_employers_sub}
             </p>
           </div>
           <Link 
             href="/candidate/jobs"
             className="text-xs font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
           >
-            Alle 1.200+ Arbeitgeber ansehen <ChevronRight className="w-4 h-4" />
+            {t.home_view_all_employers} <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
 
@@ -258,10 +259,10 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="border-b border-slate-200 pb-3">
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Beliebte Berufsfelder
+            {t.home_categories}
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Entdecke Stellenangebote nach Branche und Spezialisierung
+            {t.home_categories_sub}
           </p>
         </div>
 
@@ -295,17 +296,17 @@ export default function HomePage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 border-b border-slate-200 pb-3">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Aktuelle Stellenangebote in Deutschland
+              {t.home_recent_jobs}
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Verifizierte Vakanzen mit Gehaltsangaben und Anforderungsprofilen
+              {t.home_recent_jobs_sub}
             </p>
           </div>
           <Link
             href="/candidate/jobs"
             className="text-xs font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
           >
-            Alle Stellenangebote durchsuchen <ChevronRight className="w-4 h-4" />
+            {t.home_browse_all} <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
 
@@ -377,54 +378,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How it Works for Candidates (Clean Recruitment Architecture) */}
+      {/* How it Works for Candidates */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            In 3 Schritten zum passenden Jobangebot
+            {t.home_how_title}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500">
-            Intelligenter Lebenslauf-Abgleich ohne Bewerbungsfrust – transparent und datenschutzkonform
+            {t.home_how_sub}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Step 1 */}
           <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
             <div className="w-10 h-10 rounded-lg bg-blue-50 text-brand-700 flex items-center justify-center font-black text-sm">
               01
             </div>
             <h3 className="font-bold text-slate-900 text-base">
-              Lebenslauf hochladen & prüfen
+              {t.home_step1_title}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Lade Deinen CV als PDF oder DOCX hoch. Unsere Parsing-Engine extrahiert Hard Skills, Arbeitserfahrung und Sprachkenntnisse (CEFR A1–C2). Du kannst alle Angaben vor dem Speichern anpassen.
+              {t.home_step1_desc}
             </p>
           </div>
 
-          {/* Step 2 */}
           <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
             <div className="w-10 h-10 rounded-lg bg-blue-50 text-brand-700 flex items-center justify-center font-black text-sm">
               02
             </div>
             <h3 className="font-bold text-slate-900 text-base">
-              Transparenter Matching-Score
+              {t.home_step2_title}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Keine Black-Box: Unser semantisches Scoring vergleicht Hard Skills (40%), Berufserfahrung (25%), Standort (15%), Sprachniveau (10%) und Gehalt (10%) mit exakter Begründung.
+              {t.home_step2_desc}
             </p>
           </div>
 
-          {/* Step 3 */}
           <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
             <div className="w-10 h-10 rounded-lg bg-blue-50 text-brand-700 flex items-center justify-center font-black text-sm">
               03
             </div>
             <h3 className="font-bold text-slate-900 text-base">
-              Bewerbungs-Tracker & Übersicht
+              {t.home_step3_title}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Verwalte alle Bewerbungen übersichtlich in einem Kanban-Board (Interessiert, Beworben, Interview, Angebot). Verpasse keine Fristen oder Rückmeldungen.
+              {t.home_step3_desc}
             </p>
           </div>
         </div>
@@ -435,13 +433,13 @@ export default function HomePage() {
         <div className="rounded-2xl bg-slate-900 text-white p-8 sm:p-12 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-xl">
             <span className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold">
-              Für Arbeitgeber & HR-Teams
+              {t.home_emp_badge}
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Stellenanzeigen schalten & Talente in Europa finden
+              {t.home_emp_title}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Verbinden Sie Ihr ATS oder nutzen Sie unseren automatisierten Crawler-Service, um qualifizierte Fachkräfte in Deutschland, Österreich und der Schweiz direkt zu erreichen.
+              {t.home_emp_desc}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
@@ -449,13 +447,13 @@ export default function HomePage() {
               href="/register"
               className="px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs rounded-lg transition-colors text-center shadow-sm"
             >
-              Kandidatenprofil anlegen
+              {t.home_create_profile}
             </Link>
             <Link
               href="/pricing"
               className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs rounded-lg transition-colors text-center"
             >
-              Für Unternehmen
+              {t.home_for_companies}
             </Link>
           </div>
         </div>

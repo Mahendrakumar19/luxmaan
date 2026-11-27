@@ -18,8 +18,10 @@ import {
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { CandidateProfile, JobMatch, User, CredibilityRoleScore } from "@/types";
+import { useLanguage } from "@/lib/i18n";
 
 export default function CandidateDashboardPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
@@ -118,10 +120,10 @@ export default function CandidateDashboardPage() {
             <span>AI Match Engine Active</span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight">
-            Welcome back, {displayName}
+            {t.dash_welcome}, {displayName}
           </h1>
           <p className="text-sm text-brand-200 max-w-xl">
-            Your profile is active and scanning verified vacancies across Germany and the European Union.
+            {t.dash_subtitle}
           </p>
         </div>
 
@@ -131,14 +133,14 @@ export default function CandidateDashboardPage() {
             className="px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-100 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-2"
           >
             <FileText className="w-4 h-4 text-brand-600" />
-            Manage Resumes
+            {t.dash_manage_cv}
           </Link>
           <Link
             href="/candidate/profile"
             className="px-4 py-2.5 bg-brand-700/60 hover:bg-brand-700 text-white border border-brand-500/40 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
           >
             <UserIcon className="w-4 h-4" />
-            Edit Profile
+            {t.dash_edit_profile}
           </Link>
         </div>
       </div>

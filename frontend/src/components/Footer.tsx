@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import { Briefcase, Shield, MapPin, Globe, Building2, CheckCircle2 } from "lucide-react";
+import { Briefcase, Shield, Globe } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,101 +22,101 @@ export function Footer() {
               </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Offizielles Stellenportal & Karriere-Aggregator für Deutschland und die Europäische Union. Verifizierte Vakanzen, transparente Gehaltsdaten und intelligenter Lebenslauf-Abgleich.
+              {t.footer_desc}
             </p>
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <Shield className="w-4 h-4 text-emerald-400" />
-              <span>DSGVO / GDPR Konformität • EU Rechenzentrum</span>
+              <span>{t.footer_gdpr}</span>
             </div>
           </div>
 
-          {/* Jobs & Branchen */}
+          {/* Jobs & Sectors */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
-              Stellenangebote
+              {t.footer_jobs_heading}
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
               <li>
                 <Link href="/candidate/jobs?q=Software" className="hover:text-white transition-colors">
-                  IT & Softwareentwicklung
+                  IT & Software Engineering
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/jobs?q=Aviation" className="hover:text-white transition-colors">
-                  Luftfahrt & Aerospace
+                  Aviation & Aerospace
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/jobs?q=Project" className="hover:text-white transition-colors">
-                  Projekt- & Programm-Management
+                  Project & Program Management
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/jobs?q=Operations" className="hover:text-white transition-colors">
-                  Logistik & Flughafen-Operations
+                  Logistics & Operations
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/jobs?location=Remote" className="hover:text-white transition-colors">
-                  Remote & Homeoffice Jobs (EU)
+                  Remote Jobs (EU)
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Für Bewerber */}
+          {/* Candidate Services */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
-              Bewerber-Service
+              {t.footer_services_heading}
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
               <li>
                 <Link href="/candidate/resumes" className="hover:text-white transition-colors">
-                  Lebenslauf hochladen & parsen
+                  {t.nav_my_cv}
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/matches" className="hover:text-white transition-colors">
-                  Job-Empfehlungen (Matching)
+                  {t.nav_my_matches}
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/applications" className="hover:text-white transition-colors">
-                  Bewerbungs-Tracker (Kanban)
+                  {t.nav_tracker}
                 </Link>
               </li>
               <li>
-                <Link href="/features" className="hover:text-white transition-colors">
-                  Transparente Scoring-Kriterien
+                <Link href="/candidate/profile" className="hover:text-white transition-colors">
+                  {t.prof_title}
                 </Link>
               </li>
               <li>
                 <Link href="/candidate/settings" className="hover:text-white transition-colors">
-                  Datenauskunft & Löschung (Art. 17 DSGVO)
+                  GDPR / Art. 17 Data Export
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Unternehmen & Plattform */}
+          {/* Company & Legal */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
-              Unternehmen & Rechtliches
+              {t.footer_company_heading}
             </h4>
             <div className="text-xs text-slate-400 space-y-2.5">
               <p className="font-semibold text-slate-200">
                 Nighwan Technology Pvt. Ltd.
               </p>
               <p className="text-xs text-slate-400">
-                Fokusmärkte: Deutschland (DE), Österreich (AT), Schweiz (CH) & EU.
+                Germany (DE), Austria (AT), Switzerland (CH) & European Union.
               </p>
               <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-1">
                 <Globe className="w-3.5 h-3.5 text-brand-400" />
-                <span>Hosting: Frankfurt AWS (`eu-central-1`)</span>
+                <span>AWS Frankfurt (`eu-central-1`)</span>
               </div>
               <div className="pt-2">
                 <Link href="/admin/dashboard" className="text-xs text-slate-500 hover:text-slate-300">
-                  Admin Leitstand
+                  {t.nav_admin_console}
                 </Link>
               </div>
             </div>
@@ -121,14 +126,14 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            © {new Date().getFullYear()} Luxmaan Jobs (Nighwan Technology Pvt. Ltd.). Alle Rechte vorbehalten.
+            © {new Date().getFullYear()} Luxmaan Jobs (Nighwan Technology Pvt. Ltd.).
           </div>
           <div className="flex items-center gap-6">
             <Link href="/terms" className="hover:text-slate-300 transition-colors">
-              AGB
+              Terms
             </Link>
             <Link href="/privacy" className="hover:text-slate-300 transition-colors">
-              Datenschutz
+              Privacy
             </Link>
             <Link href="/impressum" className="hover:text-slate-300 transition-colors">
               Impressum
