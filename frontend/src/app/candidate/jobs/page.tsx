@@ -14,7 +14,9 @@ import {
   Loader2,
   CheckSquare,
   Wrench,
-  Check
+  Check,
+  RefreshCw,
+  Globe
 } from "lucide-react";
 import { Job, TailoredDocument } from "@/types";
 import { apiClient } from "@/lib/api";
@@ -44,6 +46,21 @@ function JobSearchContent() {
   const [generatingJobId, setGeneratingJobId] = useState<string | null>(null);
   const [tailoredDoc, setTailoredDoc] = useState<TailoredDocument | null>(null);
   const [docError, setDocError] = useState<string>("");
+  const [syncingLive, setSyncingLive] = useState(false);
+  const [syncNotice, setSyncNotice] = useState<string>("");
+
+  const handleSyncLive = async () => {
+    setSyncingLive(true);
+    setSyncNotice("");
+    const res = await apiClient.syncLiveJobs();
+    setSyncingLive(false);
+    if (res.success) {
+      setSyncNotice(res.message || `Synced ${res.syncedCount} live multi-sector jobs.`);
+      await fetchJobs();
+    } else {
+      setSyncNotice(res.message || "Could not reach external feeds right now.");
+    }
+  };
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -150,14 +167,35 @@ function JobSearchContent() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          {t.jobs_title}
-        </h1>
-        <p className="text-slate-600 text-sm">
-          {t.jobs_subtitle}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1.5">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            {t.jobs_title}
+          </h1>
+          <p className="text-slate-600 text-sm">
+            {t.jobs_subtitle}
+          </p>
+        </div>
+
+        <button
+          onClick={handleSyncLive}
+          disabled={syncingLive}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white rounded-xl text-xs font-bold shadow-sm transition-colors self-start sm:self-auto cursor-pointer shrink-0"
+        >
+          <RefreshCw className={`w-4 h-4 ${syncingLive ? "animate-spin" : ""}`} />
+          <span>{syncingLive ? "Syncing Trusted Sources..." : "Sync Live EU Sources"}</span>
+        </button>
       </div>
+
+      {syncNotice && (
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-emerald-600" />
+            <span>{syncNotice}</span>
+          </div>
+          <button onClick={() => setSyncNotice("")}><X className="w-4 h-4" /></button>
+        </div>
+      )}
 
       {docError && (
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs font-medium text-amber-900 flex items-center justify-between">
@@ -223,11 +261,16 @@ function JobSearchContent() {
               className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-medium text-slate-700"
             >
               <option value="All">All Sectors</option>
-              <option value="Software">IT & Software</option>
-              <option value="Cloud">Cloud & DevOps</option>
+              <option value="Engineering">Engineering & Manufacturing</option>
               <option value="Aviation">Aviation & Aerospace</option>
+              <option value="Finance">Finance & Consulting</option>
+              <option value="Logistics">Logistics & Operations</option>
+              <option value="Healthcare">Healthcare & Pharma</option>
+              <option value="Sales">Sales & Marketing</option>
+              <option value="HR">HR & Management</option>
+              <option value="Project">Project Management</option>
+              <option value="Software">IT & Software</option>
               <option value="Data">Data & AI</option>
-              <option value="Operations">Logistics & Operations</option>
             </select>
           </div>
 

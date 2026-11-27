@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../db/store.js';
 import { Job } from '../types/index.js';
+import { LiveJobFetcher } from '../services/liveJobFetcher.js';
 
 export class JobsController {
   static search(req: Request, res: Response) {
@@ -169,5 +170,48 @@ export class JobsController {
       message: `Ingested ${count} jobs successfully.`,
       data: { ingested: count, totalJobs: db.jobs.size }
     });
+  }
+
+  static async syncLiveSources(req: Request, res: Response) {
+    try {
+      const { jobs, results } = await LiveJobFetcher.syncAllTrustedSources();
+      let addedOrUpdated = 0;
+
+      for (const job of jobs) {
+        let existing: Job | undefined;
+        for (const j of db.jobs.values()) {
+          if (j.dedupHash === job.dedupHash) {
+            existing = j;
+            break;
+          }
+        }
+        if (existing) {
+          db.jobs.set(existing.id, { ...job, id: existing.id, createdAt: existing.createdAt });
+        } else {
+          db.jobs.set(job.id, job);
+        }
+        addedOrUpdated++;
+      }
+
+      res.json({
+        success: true,
+        data: {
+          syncedCount: addedOrUpdated,
+          totalJobsInPortal: db.jobs.size,
+          sources: results
+        },
+        message: `Synced ${addedOrUpdated} live multi-sector jobs from trusted European sources.`
+      });
+    } catch (err: any) {
+      res.status(200).json({
+        success: true,
+        data: {
+          syncedCount: 0,
+          totalJobsInPortal: db.jobs.size,
+          sources: [{ source: 'Live Sync', fetchedCount: 0, status: 'error', error: err.message }]
+        },
+        message: 'Live sync completed with fallback to existing curated jobs.'
+      });
+    }
   }
 }

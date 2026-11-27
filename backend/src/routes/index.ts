@@ -28,6 +28,7 @@ router.delete('/candidate/resumes/:resumeId', authenticate, CandidateController.
 // 3. Job Discovery Routes
 router.get('/jobs', JobsController.search);
 router.post('/jobs/ingest', JobsController.ingestBatch);
+router.post('/jobs/sync-live', JobsController.syncLiveSources);
 router.get('/jobs/saved', authenticate, JobsController.getSavedJobs);
 router.get('/jobs/:id', JobsController.getById);
 router.post('/jobs/:id/save', authenticate, JobsController.saveJob);

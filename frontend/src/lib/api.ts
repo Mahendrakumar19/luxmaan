@@ -587,6 +587,26 @@ export const apiClient = {
     } catch {
       return false;
     }
+  },
+
+  async syncLiveJobs(): Promise<{ success: boolean; syncedCount: number; totalJobsInPortal: number; sources?: any[]; message?: string }> {
+    try {
+      const res = await fetch(`${getApiBase()}/jobs/sync-live`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        return {
+          success: true,
+          syncedCount: json.data?.syncedCount || 0,
+          totalJobsInPortal: json.data?.totalJobsInPortal || 0,
+          sources: json.data?.sources || [],
+          message: json.message
+        };
+      }
+    } catch {}
+    return { success: false, syncedCount: 0, totalJobsInPortal: 0, message: 'Live sync unavailable offline.' };
   }
 };
 
