@@ -284,7 +284,7 @@ export default function CandidateProfilePage() {
         <div className="space-y-4">
           <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">
             <UserIcon className="w-4 h-4 text-brand-700" />
-            Career Overview & Sector Preferences
+            {t.prof_overview}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -357,7 +357,7 @@ export default function CandidateProfilePage() {
           <div className="flex items-center justify-between border-b border-slate-100 pb-2">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-brand-700" />
-              Work Experience (Structured Template)
+              {t.prof_work_exp}
             </h2>
             <button
               type="button"
@@ -470,7 +470,7 @@ export default function CandidateProfilePage() {
           <div className="flex items-center justify-between border-b border-slate-100 pb-2">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <GraduationCap className="w-4 h-4 text-brand-700" />
-              Education (Latest to Oldest)
+              {t.prof_edu}
             </h2>
             <button
               type="button"
@@ -545,7 +545,7 @@ export default function CandidateProfilePage() {
           <div className="flex items-center justify-between border-b border-slate-100 pb-2">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Award className="w-4 h-4 text-brand-700" />
-              Certifications & Recognised Affiliations
+              {t.prof_certs}
             </h2>
             <button
               type="button"
@@ -621,7 +621,7 @@ export default function CandidateProfilePage() {
         <div className="space-y-4">
           <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">
             <MapPin className="w-4 h-4 text-brand-700" />
-            Location, Languages & Compensation
+            {t.prof_loc_comp}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -742,7 +742,7 @@ export default function CandidateProfilePage() {
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-1.5">
               <Wrench className="w-3.5 h-3.5 text-brand-700" />
-              Specified Software for Job Roles
+              {t.prof_software}
             </h2>
             <div className="flex flex-wrap gap-1.5">
               {softwareTools.map((sw) => (

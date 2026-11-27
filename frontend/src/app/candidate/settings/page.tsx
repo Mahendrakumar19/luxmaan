@@ -12,8 +12,10 @@ import {
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { User, CandidateProfile } from "@/types";
+import { useLanguage } from "@/lib/i18n";
 
 export default function GdprSettingsPage() {
+  const { t } = useLanguage();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [aiConsent, setAiConsent] = useState(true);
@@ -88,10 +90,10 @@ export default function GdprSettingsPage() {
           <span>EU General Data Protection Regulation (GDPR / DSGVO)</span>
         </div>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">
-          Privacy & Data Rights Management
+          {t.settings_title}
         </h1>
         <p className="text-sm text-slate-600">
-          Exercise your statutory data protection rights under European law directly and transparently.
+          {t.settings_sub}
         </p>
       </div>
 

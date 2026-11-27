@@ -18,8 +18,10 @@ import {
 import { JobMatch } from "@/types";
 import { apiClient } from "@/lib/api";
 import { formatSalary } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 export default function MatchesPage() {
+  const { t } = useLanguage();
   const [matches, setMatches] = useState<JobMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedMatchId, setExpandedMatchId] = useState<string | null>("match-1");
@@ -45,13 +47,13 @@ export default function MatchesPage() {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
             <Sliders className="w-3.5 h-3.5 text-brand-700" />
-            <span>Verifizierter Profilabgleich • Transparente Kriterien</span>
+            <span>{t.matches_badge}</span>
           </div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Passgenaue Stellenangebote
+            {t.matches_title}
           </h1>
           <p className="text-sm text-slate-600">
-            Berechnet nach Hard Skills, Berufserfahrung, Gehaltsrahmen und Sprachprofil.
+            {t.matches_sub}
           </p>
         </div>
 
@@ -117,7 +119,7 @@ export default function MatchesPage() {
                   <div className="flex items-center gap-4 self-end md:self-auto">
                     <div className="text-right">
                       <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Compatibility
+                        {t.matches_compat}
                       </div>
                       <div
                         className={`text-2xl font-black ${
@@ -140,7 +142,7 @@ export default function MatchesPage() {
                       href="#"
                       className="px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5"
                     >
-                      Bewerben
+                      {t.matches_apply}
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>

@@ -187,7 +187,7 @@ function JobSearchContent() {
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white rounded-xl text-xs font-bold shadow-sm transition-colors self-start sm:self-auto cursor-pointer shrink-0"
         >
           <RefreshCw className={`w-4 h-4 ${syncingLive ? "animate-spin" : ""}`} />
-          <span>{syncingLive ? "Syncing Trusted Sources..." : "Sync Live EU Sources"}</span>
+          <span>{syncingLive ? t.jobs_syncing : t.jobs_sync_btn}</span>
         </button>
       </div>
 
@@ -251,14 +251,14 @@ function JobSearchContent() {
             onClick={fetchJobs}
             className="bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm py-2.5 rounded-xl transition-colors shadow-sm cursor-pointer"
           >
-            Search & Filter
+            {t.jobs_search_btn}
           </button>
         </div>
 
         {/* Secondary Optimised Filters */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 text-xs">
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Sector</label>
+            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t.jobs_sector}</label>
             <select
               value={sector}
               onChange={(e) => setSector(e.target.value)}
@@ -279,7 +279,7 @@ function JobSearchContent() {
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Experience Level</label>
+            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t.jobs_exp_level}</label>
             <select
               value={experienceLevel}
               onChange={(e) => setExperienceLevel(e.target.value)}
@@ -294,7 +294,7 @@ function JobSearchContent() {
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Min Salary (EUR)</label>
+            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t.jobs_min_salary}</label>
             <select
               value={minSalary}
               onChange={(e) => setMinSalary(e.target.value)}
@@ -308,7 +308,7 @@ function JobSearchContent() {
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Workplace</label>
+            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t.jobs_workplace}</label>
             <select
               value={workplaceType}
               onChange={(e) => setWorkplaceType(e.target.value)}
@@ -325,7 +325,7 @@ function JobSearchContent() {
 
       {/* Results Header */}
       <div className="flex items-center justify-between text-sm text-slate-500">
-        <span>Showing <strong>{jobs.length}</strong> verified positions</span>
+        <span>{t.jobs_showing} <strong>{jobs.length}</strong> {t.jobs_verified_pos}</span>
         <span className="text-xs">Multi-platform EU job aggregator</span>
       </div>
 
@@ -401,7 +401,7 @@ function JobSearchContent() {
                       }`}
                     >
                       {isTracked ? <Check className="w-3.5 h-3.5" /> : <CheckSquare className="w-3.5 h-3.5" />}
-                      <span>{isTracked ? "Tracked" : "Track"}</span>
+                      <span>{isTracked ? t.jobs_tracked : t.jobs_track}</span>
                     </button>
 
                     <button
@@ -414,7 +414,7 @@ function JobSearchContent() {
                       ) : (
                         <FileText className="w-3.5 h-3.5" />
                       )}
-                      <span>Tailored CV & Cover</span>
+                      <span>{t.jobs_tailored_btn}</span>
                     </button>
 
                     <a
@@ -423,7 +423,7 @@ function JobSearchContent() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-700 hover:bg-brand-800 text-white rounded-lg text-xs font-bold shadow-sm transition-colors"
                     >
-                      <span>Apply</span>
+                      <span>{t.jobs_apply}</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>

@@ -1,14 +1,18 @@
+"use client";
+
 import { Mail, MapPin, Building2, Phone, Globe } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ContactPage() {
+  const { t } = useLanguage();
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-          Contact & Legal Notice
+          {t.contact_title}
         </h1>
         <p className="text-sm text-slate-600 max-w-xl mx-auto">
-          For technical inquiries, source partnerships, or data protection officer inquiries.
+          {t.contact_sub}
         </p>
       </div>
 

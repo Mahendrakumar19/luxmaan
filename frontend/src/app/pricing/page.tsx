@@ -1,15 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import { Check, Sparkles, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function PricingPage() {
+  const { t } = useLanguage();
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
       <div className="text-center max-w-2xl mx-auto space-y-4">
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-          Transparent, Fair Pricing
+          {t.pricing_title}
         </h1>
         <p className="text-sm text-slate-600">
-          Always 100% free for job seekers. Enterprise and recruitment feed integrations available for organizations.
+          {t.pricing_sub}
         </p>
       </div>
 

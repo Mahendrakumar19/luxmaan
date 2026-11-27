@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { JobApplication, ApplicationStatus } from "@/types";
 import { apiClient } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n";
 
 const COLUMNS: { status: ApplicationStatus; title: string; color: string; badgeBg: string; border: string }[] = [
   { status: "Interested", title: "Interested / Shortlist", color: "text-blue-700", badgeBg: "bg-blue-50 text-blue-700 border-blue-200", border: "border-blue-200" },
@@ -34,6 +35,7 @@ const COLUMNS: { status: ApplicationStatus; title: string; color: string; badgeB
 ];
 
 export default function ApplicationsTrackerPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,10 +148,10 @@ export default function ApplicationsTrackerPage() {
             <span>PRD Section 5.9 Application Tracker</span>
           </div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">
-            Job Application Kanban Board
+            {t.tracker_title}
           </h1>
           <p className="text-sm text-slate-600">
-            Track your applications across European employers from first bookmark to final signed offer.
+            {t.tracker_sub}
           </p>
         </div>
 
@@ -158,7 +160,7 @@ export default function ApplicationsTrackerPage() {
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/20 transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>Track New Application</span>
+          <span>{t.tracker_add_btn}</span>
         </button>
       </div>
 

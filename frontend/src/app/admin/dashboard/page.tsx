@@ -19,8 +19,10 @@ import {
 } from "lucide-react";
 import { AdminKPIs, JobSource } from "@/types";
 import { apiClient } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminDashboardPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [kpis, setKpis] = useState<AdminKPIs | null>(null);
   const [sources, setSources] = useState<JobSource[]>([]);
@@ -105,10 +107,10 @@ export default function AdminDashboardPage() {
             <span>Administrator Control Center</span>
           </div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">
-            Platform Operations & Monitoring
+            {t.admin_title}
           </h1>
           <p className="text-sm text-slate-600">
-            Real-time KPIs, multi-source crawler management, and configurable AI matching parameters.
+            {t.admin_sub}
           </p>
         </div>
 

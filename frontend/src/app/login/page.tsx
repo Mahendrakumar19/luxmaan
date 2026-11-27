@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sparkles, ArrowRight, Lock, Mail, AlertCircle, Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n";
 
 export default function LoginPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [email, setEmail] = useState("candidate@example.de");
   const [password, setPassword] = useState("Candidate2026!");
@@ -60,10 +62,10 @@ export default function LoginPage() {
             <Sparkles className="w-6 h-6" />
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Sign In to Luxmaan AI
+            {t.login_title}
           </h1>
           <p className="text-xs text-slate-500">
-            Access your candidate profile and personalized job recommendations.
+            {t.login_sub}
           </p>
         </div>
 
@@ -76,7 +78,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700">Email Address</label>
+            <label className="text-xs font-semibold text-slate-700">{t.login_email}</label>
             <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50/50">
               <Mail className="w-4 h-4 text-slate-400" />
               <input
@@ -92,7 +94,7 @@ export default function LoginPage() {
 
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-slate-700">Password</label>
+              <label className="text-xs font-semibold text-slate-700">{t.login_password}</label>
             </div>
             <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50/50 focus-within:border-brand-500 focus-within:bg-white transition-all">
               <Lock className="w-4 h-4 text-slate-400 shrink-0" />

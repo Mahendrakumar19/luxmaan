@@ -22,6 +22,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n";
 
 interface LanguageItem {
   lang: string;
@@ -29,6 +30,7 @@ interface LanguageItem {
 }
 
 export default function RegisterPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   
   // Step navigation: 1 = Account & Upload, 2 = Review & Confirm Extracted Data
@@ -248,7 +250,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Email Address</label>
+              <label className="text-xs font-semibold text-slate-700">{t.login_email}</label>
               <input
                 type="email"
                 required

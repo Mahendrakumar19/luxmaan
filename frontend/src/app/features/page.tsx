@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { 
   Sparkles, 
@@ -10,8 +12,10 @@ import {
   Zap, 
   ArrowRight 
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function FeaturesPage() {
+  const { t } = useLanguage();
   const features = [
     {
       icon: FileText,
@@ -53,10 +57,10 @@ export default function FeaturesPage() {
           <span>Platform Capabilities</span>
         </div>
         <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-          Engineered for European Labor Markets
+          {t.features_title}
         </h1>
         <p className="text-base sm:text-lg text-slate-600">
-          Built from the ground up to solve the challenges of bilingual (German/English) recruitment and compliance with European data regulations.
+          {t.features_sub}
         </p>
       </div>
 

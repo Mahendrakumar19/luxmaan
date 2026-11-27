@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { Resume } from "@/types";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ResumeManagerPage() {
+  const { t } = useLanguage();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -100,10 +102,10 @@ export default function ResumeManagerPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          Resume & CV Manager
+          {t.resumes_title}
         </h1>
         <p className="text-sm text-slate-600">
-          Upload your resume in PDF or DOCX format for automated multilingual parsing and semantic vector extraction.
+          {t.resumes_sub}
         </p>
       </div>
 
@@ -119,7 +121,7 @@ export default function ResumeManagerPage() {
 
         <div className="space-y-1">
           <div className="text-base font-bold text-slate-800">
-            {isUploading ? "Uploading & parsing resume with multilingual AI..." : "Upload your resume (PDF or DOCX)"}
+            {isUploading ? "Uploading & parsing resume..." : t.resumes_upload_prompt}
           </div>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             Maximum file size: 10MB. Files are encrypted at rest in Frankfurt (AWS `eu-central-1`) and strictly processed under GDPR.
@@ -128,7 +130,7 @@ export default function ResumeManagerPage() {
 
         <div className="pt-2">
           <label className={`inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm cursor-pointer transition-all ${isUploading ? 'opacity-60 cursor-not-allowed' : ''}`}>
-            <span>{isUploading ? "Processing..." : "Browse Computer"}</span>
+            <span>{isUploading ? "Processing..." : t.resumes_browse}</span>
             <input
               type="file"
               accept=".pdf,.docx,.doc"
