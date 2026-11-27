@@ -73,6 +73,10 @@ export class GdprController {
       if (key.startsWith(`${userId}:`)) db.savedJobs.delete(key);
     }
 
+    for (const [appId, app] of db.applications.entries()) {
+      if (app.userId === userId) db.applications.delete(appId);
+    }
+
     res.json({
       success: true,
       message: 'Account, candidate profile, and all associated personal data permanently erased under GDPR Article 17.'

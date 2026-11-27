@@ -1,5 +1,8 @@
 import crypto from 'crypto';
+import { promisify } from 'util';
 import { User, CandidateProfile, Resume, Job, JobSource, JobMatch, MatchingWeightsConfig, UserConsent, JobApplication } from '../types/index.js';
+
+const scryptAsync = promisify(crypto.scrypt);
 
 export function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString('hex');
@@ -7,11 +10,28 @@ export function hashPassword(password: string): string {
   return `${salt}:${hash}`;
 }
 
+export async function hashPasswordAsync(password: string): Promise<string> {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derived = (await scryptAsync(password, salt, 32)) as Buffer;
+  return `${salt}:${derived.toString('hex')}`;
+}
+
 export function verifyPassword(password: string, combinedHash: string): boolean {
   try {
     const [salt, key] = combinedHash.split(':');
     const keyBuffer = Buffer.from(key, 'hex');
     const derivedKey = crypto.scryptSync(password, salt, 32);
+    return crypto.timingSafeEqual(keyBuffer, derivedKey);
+  } catch {
+    return false;
+  }
+}
+
+export async function verifyPasswordAsync(password: string, combinedHash: string): Promise<boolean> {
+  try {
+    const [salt, key] = combinedHash.split(':');
+    const keyBuffer = Buffer.from(key, 'hex');
+    const derivedKey = (await scryptAsync(password, salt, 32)) as Buffer;
     return crypto.timingSafeEqual(keyBuffer, derivedKey);
   } catch {
     return false;
@@ -270,9 +290,37 @@ class DataStore {
       updatedAt: new Date().toISOString()
     };
 
+    const src4: JobSource = {
+      id: "src-4",
+      sourceName: "Sweden JobTech Dev (Platsbanken)",
+      sourceType: "REALTIME_API",
+      sourceUrl: "https://jobsearch.api.jobtechdev.se/search",
+      collectionFrequencyHours: 2.5,
+      isActive: true,
+      lastSuccessfulRunAt: new Date().toISOString(),
+      totalJobsCollected: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const src5: JobSource = {
+      id: "src-5",
+      sourceName: "Jobicy Europe Multi-Country Feed",
+      sourceType: "REALTIME_API",
+      sourceUrl: "https://jobicy.com/api/v2/remote-jobs?geo=europe",
+      collectionFrequencyHours: 2.5,
+      isActive: true,
+      lastSuccessfulRunAt: new Date().toISOString(),
+      totalJobsCollected: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
     this.sources.set(src1.id, src1);
     this.sources.set(src2.id, src2);
     this.sources.set(src3.id, src3);
+    this.sources.set(src4.id, src4);
+    this.sources.set(src5.id, src5);
 
     // 3. Seed Realistic German Tech Vacancies
     const sampleJobs: Job[] = [

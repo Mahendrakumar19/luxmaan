@@ -249,4 +249,20 @@ export class CandidateController {
     db.resumes.delete(resumeId);
     res.json({ success: true, message: 'Resume deleted.' });
   }
+
+  static deleteProfile(req: Request, res: Response) {
+    const userId = req.user!.id;
+    const existed = db.profiles.delete(userId);
+
+    // Also remove uploaded resumes for this profile
+    for (const [id, r] of db.resumes.entries()) {
+      if (r.userId === userId) db.resumes.delete(id);
+    }
+
+    res.json({
+      success: true,
+      data: { deleted: existed },
+      message: 'Your candidate profile and resume data have been permanently deleted.'
+    });
+  }
 }

@@ -52,6 +52,9 @@ export default function CandidateProfilePage() {
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deletingProfile, setDeletingProfile] = useState(false);
+  const [profileDeleted, setProfileDeleted] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -219,6 +222,28 @@ export default function CandidateProfilePage() {
     }
   };
 
+  const handleDeleteProfile = async () => {
+    setDeletingProfile(true);
+    const res = await apiClient.deleteProfile();
+    setDeletingProfile(false);
+    setDeleteModalOpen(false);
+    if (res.success) {
+      setProfileDeleted(true);
+      setHeadline("");
+      setSummary("");
+      setTargetRolesText("");
+      setExperienceYears("");
+      setCurrentCity("");
+      setSkills([]);
+      setSoftwareTools([]);
+      setExperiences([]);
+      setEducations([]);
+      setCertifications([]);
+    } else {
+      setErrorMessage(res.message || "Failed to delete profile");
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-24 flex flex-col items-center justify-center space-y-4">
@@ -241,29 +266,47 @@ export default function CandidateProfilePage() {
           </p>
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 hover:bg-brand-800 disabled:bg-brand-400 text-white rounded-xl text-sm font-bold shadow-sm transition-all self-start sm:self-auto cursor-pointer"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Saving...
-            </>
-          ) : savedSuccess ? (
-            <>
-              <Check className="w-4 h-4 text-emerald-300" />
-              {t.prof_saved}
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              {t.prof_save}
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => setDeleteModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Delete Profile</span>
+          </button>
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 hover:bg-brand-800 disabled:bg-brand-400 text-white rounded-xl text-sm font-bold shadow-sm transition-all cursor-pointer"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Saving...
+              </>
+            ) : savedSuccess ? (
+              <>
+                <Check className="w-4 h-4 text-emerald-300" />
+                {t.prof_saved}
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                {t.prof_save}
+              </>
+            )}
+          </button>
+        </div>
       </div>
+
+      {profileDeleted && (
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-sm font-medium flex items-center justify-between gap-2">
+          <span>Your candidate profile and resume data have been permanently deleted.</span>
+          <button onClick={() => setProfileDeleted(false)}><X className="w-4 h-4" /></button>
+        </div>
+      )}
 
       {savedSuccess && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-sm font-medium flex items-center gap-2">
@@ -767,6 +810,35 @@ export default function CandidateProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Profile Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold text-slate-900">Delete Candidate Profile?</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              This will permanently delete your structured profile data (work experience, education, certifications, skills) and uploaded resumes. You can recreate a profile anytime.
+            </p>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteModalOpen(false)}
+                className="flex-1 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProfile}
+                disabled={deletingProfile}
+                className="flex-1 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl"
+              >
+                {deletingProfile ? "Deleting..." : "Yes, Delete Profile"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

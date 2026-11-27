@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { db, hashPassword, verifyPassword } from '../db/store.js';
+import { db, hashPasswordAsync, verifyPasswordAsync } from '../db/store.js';
 import { generateToken } from '../middleware/auth.js';
 import { User, CandidateProfile } from '../types/index.js';
 
 export class AuthController {
-  static register(req: Request, res: Response) {
+  static async register(req: Request, res: Response) {
     const { email, password, firstName, lastName, consentGiven, policyVersion } = req.body;
 
     if (!email || !password || !firstName || !lastName) {
@@ -25,7 +25,7 @@ export class AuthController {
     const newUser: User = {
       id: userId,
       email: emailNorm,
-      passwordHash: hashPassword(password),
+      passwordHash: await hashPasswordAsync(password),
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       role: 'Candidate',
@@ -84,7 +84,7 @@ export class AuthController {
       success: true,
       data: {
         accessToken: token,
-        expiresIn: 7200,
+        expiresIn: 86400,
         user: {
           id: newUser.id,
           email: newUser.email,
@@ -97,7 +97,7 @@ export class AuthController {
     });
   }
 
-  static login(req: Request, res: Response) {
+  static async login(req: Request, res: Response) {
     const { email, password } = req.body;
     if (!email || !password) {
       res.status(400).json({ success: false, message: 'Email and password required.' });
@@ -114,7 +114,7 @@ export class AuthController {
       }
     }
 
-    if (!foundUser || !verifyPassword(password, foundUser.passwordHash)) {
+    if (!foundUser || !(await verifyPasswordAsync(password, foundUser.passwordHash))) {
       res.status(401).json({ success: false, message: 'Invalid email or password.' });
       return;
     }
@@ -131,7 +131,7 @@ export class AuthController {
       success: true,
       data: {
         accessToken: token,
-        expiresIn: 7200,
+        expiresIn: 86400,
         user: {
           id: foundUser.id,
           email: foundUser.email,

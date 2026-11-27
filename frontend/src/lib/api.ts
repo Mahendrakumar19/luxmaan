@@ -284,7 +284,18 @@ export const apiClient = {
 
   getToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp && Date.now() >= payload.exp * 1000) {
+        this.clearAuth();
+        return null;
+      }
+    } catch {
+      // ignore malformed decode, let backend verify
+    }
+    return token;
   },
 
   getUser(): User | null {
@@ -302,12 +313,14 @@ export const apiClient = {
     if (typeof window === 'undefined') return;
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
+    window.dispatchEvent(new Event('luxmaan-auth-changed'));
   },
 
   clearAuth() {
     if (typeof window === 'undefined') return;
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    window.dispatchEvent(new Event('luxmaan-auth-changed'));
   },
 
   async login(email: string, password: string): Promise<{ success: boolean; data?: { accessToken: string; user: User }; message?: string }> {
@@ -607,6 +620,35 @@ export const apiClient = {
       }
     } catch {}
     return { success: false, syncedCount: 0, totalJobsInPortal: 0, message: 'Live sync unavailable offline.' };
+  },
+
+  async deleteProfile(): Promise<{ success: boolean; message?: string }> {
+    try {
+      const res = await fetch(`${getApiBase()}/candidate/profile`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      const json = await res.json();
+      return { success: res.ok && json.success, message: json.message };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Failed to delete profile' };
+    }
+  },
+
+  async deleteAccount(): Promise<{ success: boolean; message?: string }> {
+    try {
+      const res = await fetch(`${getApiBase()}/gdpr/delete-account`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        this.clearAuth();
+      }
+      return { success: res.ok && json.success, message: json.message };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Failed to delete account' };
+    }
   }
 };
 

@@ -75,8 +75,9 @@ export default function GdprSettingsPage() {
     }, 800);
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     setDeleteModalOpen(false);
+    await apiClient.deleteAccount();
     setAccountDeleted(true);
     apiClient.clearAuth();
   };

@@ -21,6 +21,7 @@ router.get('/auth/me', authenticate, AuthController.me);
 // 2. Candidate Routes
 router.get('/candidate/profile', authenticate, CandidateController.getProfile);
 router.put('/candidate/profile', authenticate, CandidateController.updateProfile);
+router.delete('/candidate/profile', authenticate, CandidateController.deleteProfile);
 router.post('/candidate/resumes/upload', authenticate, upload.single('file'), CandidateController.uploadResume);
 router.get('/candidate/resumes', authenticate, CandidateController.getResumes);
 router.delete('/candidate/resumes/:resumeId', authenticate, CandidateController.deleteResume);

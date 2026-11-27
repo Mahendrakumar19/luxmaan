@@ -31,7 +31,14 @@ export function Navbar() {
   const langDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCurrentUser(apiClient.getUser());
+    const syncUser = () => setCurrentUser(apiClient.getUser());
+    syncUser();
+    window.addEventListener("luxmaan-auth-changed", syncUser);
+    window.addEventListener("storage", syncUser);
+    return () => {
+      window.removeEventListener("luxmaan-auth-changed", syncUser);
+      window.removeEventListener("storage", syncUser);
+    };
   }, []);
 
   useEffect(() => {
