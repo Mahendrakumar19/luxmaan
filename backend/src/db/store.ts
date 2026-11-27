@@ -83,6 +83,8 @@ class DataStore {
       userId: candidateId,
       headline: "Senior Cloud & Full-Stack Engineer",
       summary: "Passionate full-stack developer with 6+ years of experience developing distributed cloud systems in Germany.",
+      sector: "IT & Cloud Engineering",
+      targetRoles: ["Senior Cloud Software Engineer", "Full-Stack Engineer", "DevOps Engineer"],
       yearsOfExperience: 6.0,
       currentLocation: "Munich, Germany",
       preferredLocations: ["Munich", "Berlin", "Remote"],
@@ -97,6 +99,78 @@ class DataStore {
         { lang: "English", level: "Fluent" }
       ],
       skills: ["C#", ".NET", "React", "TypeScript", "Docker", "PostgreSQL", "AWS"],
+      sectorSkills: [
+        { sector: "IT & Software", skills: ["C#", ".NET Core", "React", "TypeScript", "Microservices"] },
+        { sector: "Cloud & DevOps", skills: ["AWS", "Docker", "CI/CD", "PostgreSQL"] }
+      ],
+      softwareTools: ["Docker", "Kubernetes", "PostgreSQL", "Git", "VS Code", "Jira", "AWS Console"],
+      experiences: [
+        {
+          id: "exp-1",
+          company: "CloudScale GmbH",
+          companyType: "Enterprise SaaS",
+          jobRole: "Senior Cloud & Full-Stack Engineer",
+          startDate: "2022-03",
+          endDate: "",
+          isCurrent: true,
+          location: "Munich, Germany",
+          responsibilities: [
+            "Architected high-availability .NET Core & React microservices deployed on AWS eu-central-1",
+            "Reduced database query latency by 40% via PostgreSQL indexing and Docker containerization",
+            "Mentored 4 junior engineers and led bi-weekly agile sprint reviews"
+          ]
+        },
+        {
+          id: "exp-2",
+          company: "FinTech Solutions AG",
+          companyType: "FinTech / Banking",
+          jobRole: "Software Engineer",
+          startDate: "2019-06",
+          endDate: "2022-02",
+          isCurrent: false,
+          location: "Frankfurt, Germany",
+          responsibilities: [
+            "Developed GDPR-compliant payment processing APIs using C# and TypeScript",
+            "Integrated automated CI/CD pipelines and containerized testing suites"
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: "edu-1",
+          institution: "Technical University of Munich (TUM)",
+          degree: "M.Sc. Computer Science",
+          fieldOfStudy: "Distributed Systems & Cloud Computing",
+          startYear: 2017,
+          endYear: 2019
+        },
+        {
+          id: "edu-2",
+          institution: "RWTH Aachen University",
+          degree: "B.Sc. Computer Science",
+          fieldOfStudy: "Software Engineering",
+          startYear: 2014,
+          endYear: 2017
+        }
+      ],
+      certifications: [
+        {
+          id: "cert-1",
+          name: "AWS Certified Solutions Architect – Associate",
+          type: "Cloud Architecture",
+          duration: "3 months",
+          recognisedAffiliation: "Amazon Web Services (AWS)",
+          issueYear: 2023
+        },
+        {
+          id: "cert-2",
+          name: "Goethe-Zertifikat C1",
+          type: "Language Proficiency",
+          duration: "6 months",
+          recognisedAffiliation: "Goethe-Institut Germany",
+          issueYear: 2021
+        }
+      ],
       isProfileComplete: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

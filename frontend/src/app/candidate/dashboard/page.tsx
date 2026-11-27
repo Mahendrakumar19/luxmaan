@@ -17,13 +17,14 @@ import {
   LogIn
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
-import { CandidateProfile, JobMatch, User } from "@/types";
+import { CandidateProfile, JobMatch, User, CredibilityRoleScore } from "@/types";
 
 export default function CandidateDashboardPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [matches, setMatches] = useState<JobMatch[]>([]);
+  const [credibility, setCredibility] = useState<{ overallScore: number; roleScores: CredibilityRoleScore[] } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,12 +33,16 @@ export default function CandidateDashboardPage() {
       setCurrentUser(user);
 
       try {
-        const [profData, matchData] = await Promise.all([
+        const [profData, matchData, credData] = await Promise.all([
           apiClient.getProfile(),
-          apiClient.getMatches()
+          apiClient.getMatches(),
+          apiClient.getCredibilityScore()
         ]);
         setProfile(profData);
         setMatches(matchData || []);
+        if (credData) {
+          setCredibility({ overallScore: credData.overallScore, roleScores: credData.roleScores });
+        }
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {
@@ -213,12 +218,57 @@ export default function CandidateDashboardPage() {
           </div>
         </div>
 
-        {/* Right Column: Top Recommendations */}
+        {/* Right Column: Credibility Score & Top Recommendations */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Role Credibility Score Card */}
+          {credibility && (
+            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">Role Credibility Score</h2>
+                  <p className="text-xs text-slate-500">
+                    Calculated from career preferences, European location, past roles, skills & certifications
+                  </p>
+                </div>
+                <div className="px-4 py-2 rounded-xl bg-brand-50 border border-brand-200 text-center">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700 block">Overall Index</span>
+                  <span className="text-2xl font-black text-brand-700">{credibility.overallScore}%</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {credibility.roleScores.map((rs) => (
+                  <div key={rs.role} className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-slate-900 truncate">{rs.role}</span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-extrabold">
+                        {rs.score}%
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5 text-[10px] text-slate-600">
+                      <div className="bg-white px-2 py-1 rounded border border-slate-200 text-center">
+                        <span className="block text-slate-400">Skills</span>
+                        <span className="font-bold text-slate-800">{rs.skillsMatch}%</span>
+                      </div>
+                      <div className="bg-white px-2 py-1 rounded border border-slate-200 text-center">
+                        <span className="block text-slate-400">Location</span>
+                        <span className="font-bold text-slate-800">{rs.locationMatch}%</span>
+                      </div>
+                      <div className="bg-white px-2 py-1 rounded border border-slate-200 text-center">
+                        <span className="block text-slate-400">Prefs</span>
+                        <span className="font-bold text-slate-800">{rs.preferenceMatch}%</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Top AI Matches</h2>
-              <p className="text-xs text-slate-500">Ranked by 384-dimensional semantic embedding similarity</p>
+              <h2 className="text-xl font-bold text-slate-900">Top Role Matches</h2>
+              <p className="text-xs text-slate-500">Ranked by skills, qualifications, location & salary fit</p>
             </div>
             <Link
               href="/candidate/matches"

@@ -57,6 +57,8 @@ export class CandidateController {
     const {
       headline,
       summary,
+      sector,
+      targetRoles,
       yearsOfExperience,
       currentLocation,
       preferredLocations,
@@ -66,11 +68,18 @@ export class CandidateController {
       expectedSalaryMax,
       noticePeriodDays,
       languages,
-      skills
+      skills,
+      sectorSkills,
+      softwareTools,
+      experiences,
+      educations,
+      certifications
     } = req.body;
 
     profile.headline = headline ?? profile.headline;
     profile.summary = summary ?? profile.summary;
+    profile.sector = sector ?? profile.sector;
+    profile.targetRoles = targetRoles ?? profile.targetRoles;
     profile.yearsOfExperience = Number(yearsOfExperience) || profile.yearsOfExperience;
     profile.currentLocation = currentLocation ?? profile.currentLocation;
     profile.preferredLocations = preferredLocations ?? profile.preferredLocations;
@@ -81,6 +90,14 @@ export class CandidateController {
     profile.noticePeriodDays = Number(noticePeriodDays) || profile.noticePeriodDays;
     profile.languages = languages ?? profile.languages;
     profile.skills = skills ?? profile.skills;
+    profile.sectorSkills = sectorSkills ?? profile.sectorSkills;
+    profile.softwareTools = softwareTools ?? profile.softwareTools;
+    profile.experiences = experiences ?? profile.experiences;
+    if (educations && Array.isArray(educations)) {
+      // Strictly sort Education from latest to oldest
+      profile.educations = [...educations].sort((a, b) => (Number(b.endYear) || 9999) - (Number(a.endYear) || 9999));
+    }
+    profile.certifications = certifications ?? profile.certifications;
     profile.isProfileComplete = true;
     profile.updatedAt = new Date().toISOString();
 
@@ -121,17 +138,22 @@ export class CandidateController {
         parsed = {
           headline: parsed?.headline || fb.headline,
           summary: parsed?.summary || fb.summary,
+          sector: parsed?.sector || fb.sector,
           current_location: parsed?.current_location || fb.current_location,
           skills: (parsed?.skills && parsed.skills.length > 0) ? parsed.skills : fb.skills,
+          software_tools: parsed?.software_tools || fb.software_tools,
           years_of_experience: parsed?.years_of_experience || fb.years_of_experience,
-          languages: (parsed?.languages && parsed.languages.length > 0) ? parsed.languages : fb.languages
+          languages: (parsed?.languages && parsed.languages.length > 0) ? parsed.languages : fb.languages,
+          experiences: (parsed?.experiences && parsed.experiences.length > 0) ? parsed.experiences : fb.experiences,
+          educations: (parsed?.educations && parsed.educations.length > 0) ? parsed.educations : fb.educations,
+          certifications: parsed?.certifications || fb.certifications
         };
       } catch (fbErr) {
         console.error('[CandidateController] FallbackParser error:', fbErr);
       }
     }
 
-    // Sync extracted skills with candidate profile
+    // Sync extracted structured template data with candidate profile
     const profile = db.profiles.get(userId);
     if (profile && parsed) {
       if (parsed.skills && Array.isArray(parsed.skills) && parsed.skills.length > 0) {
@@ -139,6 +161,10 @@ export class CandidateController {
           if (!profile.skills.includes(s)) profile.skills.push(s);
         }
       }
+      if (parsed.software_tools && Array.isArray(parsed.software_tools)) {
+        profile.softwareTools = Array.from(new Set([...(profile.softwareTools || []), ...parsed.software_tools]));
+      }
+      if (parsed.sector) profile.sector = parsed.sector;
       if (parsed.headline) profile.headline = parsed.headline;
       if (parsed.summary && !profile.summary) profile.summary = parsed.summary;
       if (parsed.years_of_experience) profile.yearsOfExperience = parsed.years_of_experience;
@@ -150,6 +176,34 @@ export class CandidateController {
       }
       if (parsed.languages && Array.isArray(parsed.languages) && parsed.languages.length > 0) {
         profile.languages = parsed.languages;
+      }
+      if (parsed.experiences && Array.isArray(parsed.experiences) && (!profile.experiences || profile.experiences.length === 0)) {
+        profile.experiences = parsed.experiences.map((e: any, i: number) => ({
+          id: e.id || `exp-${Date.now()}-${i}`,
+          company: e.company || 'Company',
+          companyType: e.companyType || 'Enterprise',
+          jobRole: e.jobRole || e.job_title || 'Specialist',
+          startDate: e.startDate || e.start_date || '2020-01',
+          endDate: e.endDate || e.end_date || '',
+          isCurrent: Boolean(e.isCurrent ?? e.is_current),
+          location: e.location || profile.currentLocation,
+          responsibilities: Array.isArray(e.responsibilities) ? e.responsibilities : (e.description ? [e.description] : [])
+        }));
+      }
+      if (parsed.educations && Array.isArray(parsed.educations) && (!profile.educations || profile.educations.length === 0)) {
+        profile.educations = parsed.educations
+          .map((ed: any, i: number) => ({
+            id: ed.id || `edu-${Date.now()}-${i}`,
+            institution: ed.institution || 'University',
+            degree: ed.degree || 'Degree',
+            fieldOfStudy: ed.fieldOfStudy || ed.field_of_study || '',
+            startYear: Number(ed.startYear || ed.start_year || 2016),
+            endYear: Number(ed.endYear || ed.end_year || 2020)
+          }))
+          .sort((a: any, b: any) => (b.endYear || 9999) - (a.endYear || 9999));
+      }
+      if (parsed.certifications && Array.isArray(parsed.certifications) && (!profile.certifications || profile.certifications.length === 0)) {
+        profile.certifications = parsed.certifications;
       }
       profile.isProfileComplete = true;
       profile.updatedAt = new Date().toISOString();

@@ -7,6 +7,7 @@ import { MatchesController } from '../controllers/matchesController.js';
 import { AdminController } from '../controllers/adminController.js';
 import { GdprController } from '../controllers/gdprController.js';
 import { ApplicationsController } from '../controllers/applicationsController.js';
+import { DocumentsController } from '../controllers/documentsController.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
@@ -49,6 +50,10 @@ router.get('/candidate/applications', authenticate, ApplicationsController.getAp
 router.post('/candidate/applications', authenticate, ApplicationsController.createApplication);
 router.patch('/candidate/applications/:id', authenticate, ApplicationsController.updateApplication);
 router.delete('/candidate/applications/:id', authenticate, ApplicationsController.deleteApplication);
+
+// 6b. Credibility Score & Tailored CV / Cover Letter Generator Routes
+router.get('/candidate/credibility', authenticate, DocumentsController.getCredibilityScore);
+router.post('/documents/generate', authenticate, DocumentsController.generateTailoredDocument);
 
 // 7. GDPR & Compliance Routes
 router.get('/gdpr/export', authenticate, GdprController.exportData);

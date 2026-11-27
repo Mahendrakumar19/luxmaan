@@ -1,4 +1,4 @@
-import { Job, JobMatch, CandidateProfile, AdminKPIs, JobSource, User, Resume, JobApplication } from '@/types';
+import { Job, JobMatch, CandidateProfile, AdminKPIs, JobSource, User, Resume, JobApplication, CredibilityRoleScore, TailoredDocument } from '@/types';
 
 function getApiBase(): string {
   if (typeof window !== 'undefined') {
@@ -172,9 +172,15 @@ const MOCK_MATCHES: JobMatch[] = [
 ];
 
 export const apiClient = {
-  async getJobs(params?: { q?: string; location?: string; workplaceType?: string }): Promise<Job[]> {
+  async getJobs(params?: { q?: string; location?: string; workplaceType?: string; sector?: string; experienceLevel?: string; software?: string; minSalary?: string }): Promise<Job[]> {
     try {
-      const query = new URLSearchParams(params as any).toString();
+      const cleanParams: Record<string, string> = {};
+      if (params) {
+        Object.entries(params).forEach(([k, v]) => {
+          if (v !== undefined && v !== null && v !== '') cleanParams[k] = String(v);
+        });
+      }
+      const query = new URLSearchParams(cleanParams).toString();
       const res = await fetch(`${getApiBase()}/jobs?${query}`);
       if (res.ok) {
         const json = await res.json();
@@ -522,6 +528,58 @@ export const apiClient = {
   async deleteApplication(id: string): Promise<boolean> {
     try {
       const res = await fetch(`${getApiBase()}/candidate/applications/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
+  async getCredibilityScore(): Promise<{ candidateName: string; overallScore: number; roleScores: CredibilityRoleScore[] } | null> {
+    try {
+      const res = await fetch(`${getApiBase()}/candidate/credibility`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return json.data;
+      }
+    } catch {}
+    return null;
+  },
+
+  async generateTailoredDocument(payload: { jobId?: string; jobTitle?: string; companyName?: string; locationCity?: string; requiredSkills?: string[] }): Promise<TailoredDocument | null> {
+    try {
+      const res = await fetch(`${getApiBase()}/documents/generate`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return json.data;
+      }
+    } catch {}
+    return null;
+  },
+
+  async saveJob(jobId: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${getApiBase()}/jobs/${jobId}/save`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
+  async unsaveJob(jobId: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${getApiBase()}/jobs/${jobId}/save`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });

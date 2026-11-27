@@ -4,7 +4,7 @@ import { Job } from '../types/index.js';
 
 export class JobsController {
   static search(req: Request, res: Response) {
-    const { q, location, workplaceType, minSalary, page = '1', pageSize = '20' } = req.query;
+    const { q, location, workplaceType, minSalary, sector, experienceLevel, software, page = '1', pageSize = '20' } = req.query;
 
     let items = Array.from(db.jobs.values()).filter(j => j.isActive);
 
@@ -13,7 +13,8 @@ export class JobsController {
       items = items.filter(j =>
         j.title.toLowerCase().includes(term) ||
         j.companyName.toLowerCase().includes(term) ||
-        j.description.toLowerCase().includes(term)
+        j.description.toLowerCase().includes(term) ||
+        j.requiredSkills.some(s => s.toLowerCase().includes(term))
       );
     }
 
@@ -27,6 +28,28 @@ export class JobsController {
 
     if (workplaceType && typeof workplaceType === 'string' && workplaceType !== 'All') {
       items = items.filter(j => j.workplaceType.toLowerCase() === workplaceType.toLowerCase());
+    }
+
+    if (experienceLevel && typeof experienceLevel === 'string' && experienceLevel !== 'All') {
+      items = items.filter(j => j.experienceLevel.toLowerCase() === experienceLevel.toLowerCase());
+    }
+
+    if (sector && typeof sector === 'string' && sector !== 'All') {
+      const sec = sector.toLowerCase().trim();
+      items = items.filter(j =>
+        (j.sector && j.sector.toLowerCase().includes(sec)) ||
+        j.title.toLowerCase().includes(sec) ||
+        j.description.toLowerCase().includes(sec)
+      );
+    }
+
+    if (software && typeof software === 'string' && software.trim()) {
+      const sw = software.toLowerCase().trim();
+      items = items.filter(j =>
+        (j.softwareTools && j.softwareTools.some(t => t.toLowerCase().includes(sw))) ||
+        j.requiredSkills.some(s => s.toLowerCase().includes(sw)) ||
+        j.description.toLowerCase().includes(sw)
+      );
     }
 
     if (minSalary) {
