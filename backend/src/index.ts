@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import routes from './routes/index.js';
 import { checkDatabaseConnection, getDbStatus } from './db/connection.js';
+import { LiveJobFetcher } from './services/liveJobFetcher.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -61,4 +62,19 @@ app.listen(PORT, async () => {
     console.log(`[Database] PostgreSQL NOT ACTIVE at ${dbStatus.host}:${dbStatus.port}/${dbStatus.database}. (${dbStatus.error}).`);
     console.log(`[Database] Operating in memory-state fallback mode for all services.`);
   }
+
+  // Schedule automatic real-time job refresh & expired job cleanup (2.5-hour threshold)
+  LiveJobFetcher.ensureFreshRealtimeJobs(true)
+    .then(r => console.log(`[LiveJobFetcher] Initial real-time sync complete: ${r.syncedCount} jobs cached for 2.5h.`))
+    .catch(() => {});
+
+  setInterval(() => {
+    LiveJobFetcher.ensureFreshRealtimeJobs(false)
+      .then(r => {
+        if (r.syncedCount > 0 || r.purgedCount > 0) {
+          console.log(`[LiveJobFetcher] Scheduled check: synced ${r.syncedCount} jobs, purged ${r.purgedCount} expired jobs.`);
+        }
+      })
+      .catch(() => {});
+  }, 30 * 60 * 1000);
 });

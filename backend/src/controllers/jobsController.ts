@@ -4,8 +4,11 @@ import { Job } from '../types/index.js';
 import { LiveJobFetcher } from '../services/liveJobFetcher.js';
 
 export class JobsController {
-  static search(req: Request, res: Response) {
-    const { q, location, workplaceType, minSalary, sector, experienceLevel, software, page = '1', pageSize = '20' } = req.query;
+  static async search(req: Request, res: Response) {
+    // Automatically refresh real-time jobs if 2.5-hour threshold elapsed & remove expired jobs
+    await LiveJobFetcher.ensureFreshRealtimeJobs(false);
+
+    const { q, location, workplaceType, minSalary, sector, experienceLevel, software, page = '1', pageSize = '100' } = req.query;
 
     let items = Array.from(db.jobs.values()).filter(j => j.isActive);
 
@@ -59,7 +62,7 @@ export class JobsController {
     }
 
     const p = Math.max(1, parseInt(page as string) || 1);
-    const size = Math.max(1, parseInt(pageSize as string) || 20);
+    const size = Math.max(1, parseInt(pageSize as string) || 100);
     const totalCount = items.length;
     const paginated = items.slice((p - 1) * size, p * size);
 
@@ -174,39 +177,25 @@ export class JobsController {
 
   static async syncLiveSources(req: Request, res: Response) {
     try {
-      const { jobs, results } = await LiveJobFetcher.syncAllTrustedSources();
-      let addedOrUpdated = 0;
-
-      for (const job of jobs) {
-        let existing: Job | undefined;
-        for (const j of db.jobs.values()) {
-          if (j.dedupHash === job.dedupHash) {
-            existing = j;
-            break;
-          }
-        }
-        if (existing) {
-          db.jobs.set(existing.id, { ...job, id: existing.id, createdAt: existing.createdAt });
-        } else {
-          db.jobs.set(job.id, job);
-        }
-        addedOrUpdated++;
-      }
+      const { syncedCount, purgedCount, results } = await LiveJobFetcher.ensureFreshRealtimeJobs(true);
 
       res.json({
         success: true,
         data: {
-          syncedCount: addedOrUpdated,
+          syncedCount,
+          purgedCount,
           totalJobsInPortal: db.jobs.size,
+          ttlHours: 2.5,
           sources: results
         },
-        message: `Synced ${addedOrUpdated} live multi-sector jobs from trusted European sources.`
+        message: `Synced ${syncedCount} live multi-sector jobs (2.5h TTL threshold active, ${purgedCount} expired jobs removed).`
       });
     } catch (err: any) {
       res.status(200).json({
         success: true,
         data: {
           syncedCount: 0,
+          purgedCount: 0,
           totalJobsInPortal: db.jobs.size,
           sources: [{ source: 'Live Sync', fetchedCount: 0, status: 'error', error: err.message }]
         },

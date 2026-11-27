@@ -163,11 +163,11 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-              <h2 className="text-base font-bold text-slate-900">Job Ingestion Sources</h2>
-              <p className="text-xs text-slate-500">Official APIs, RSS feeds, and polite crawlers</p>
+              <h2 className="text-base font-bold text-slate-900">Real-Time Job Feeds (Auto-TTL: 2.5h)</h2>
+              <p className="text-xs text-slate-500">Automatically fetches live vacancies and purges expired jobs after 2.5 hours</p>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
-              {sources.length} Configured
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              {sources.length} Auto-Active
             </span>
           </div>
 
@@ -192,9 +192,9 @@ export default function AdminDashboardPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-slate-500">
-                    <span>Sync every {s.collectionFrequencyHours}h</span>
+                    <span>Auto-refresh &amp; expire: {s.collectionFrequencyHours}h TTL</span>
                     <span>•</span>
-                    <span>{s.totalJobsCollected.toLocaleString()} jobs gathered</span>
+                    <span>{s.totalJobsCollected.toLocaleString()} live jobs cached</span>
                     <span>•</span>
                     <span className="font-mono text-[11px] text-slate-400 truncate max-w-xs">{s.sourceUrl}</span>
                   </div>

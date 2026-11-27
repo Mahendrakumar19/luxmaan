@@ -230,42 +230,42 @@ class DataStore {
     this.applications.set(app2.id, app2);
     this.applications.set(app3.id, app3);
 
-    // 2. Seed Job Sources
+    // 2. Seed Real-Time Trusted Job Sources (2.5h Auto-TTL)
     const src1: JobSource = {
       id: "src-1",
       sourceName: "Bundesagentur für Arbeit API",
-      sourceType: "API",
-      sourceUrl: "https://rest.arbeitsagentur.de/jobboerse",
-      collectionFrequencyHours: 12,
+      sourceType: "REALTIME_API",
+      sourceUrl: "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobs",
+      collectionFrequencyHours: 2.5,
       isActive: true,
       lastSuccessfulRunAt: new Date().toISOString(),
-      totalJobsCollected: 840,
+      totalJobsCollected: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
     const src2: JobSource = {
       id: "src-2",
-      sourceName: "Siemens Careers Portal",
-      sourceType: "API",
-      sourceUrl: "https://jobs.siemens.com",
-      collectionFrequencyHours: 24,
+      sourceName: "Arbeitnow EU Job Board",
+      sourceType: "REALTIME_API",
+      sourceUrl: "https://www.arbeitnow.com/api/job-board-api",
+      collectionFrequencyHours: 2.5,
       isActive: true,
       lastSuccessfulRunAt: new Date().toISOString(),
-      totalJobsCollected: 165,
+      totalJobsCollected: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
     const src3: JobSource = {
       id: "src-3",
-      sourceName: "Zalando Tech Jobs Feed",
-      sourceType: "RSS_FEED",
-      sourceUrl: "https://jobs.zalando.com",
-      collectionFrequencyHours: 6,
+      sourceName: "Remotive EU / Remote Feed",
+      sourceType: "REALTIME_API",
+      sourceUrl: "https://remotive.com/api/remote-jobs",
+      collectionFrequencyHours: 2.5,
       isActive: true,
       lastSuccessfulRunAt: new Date().toISOString(),
-      totalJobsCollected: 310,
+      totalJobsCollected: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };

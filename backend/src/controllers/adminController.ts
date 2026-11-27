@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../db/store.js';
+import { LiveJobFetcher } from '../services/liveJobFetcher.js';
+import { Job } from '../types/index.js';
 
 export class AdminController {
   static getKpis(req: Request, res: Response) {
@@ -46,7 +48,7 @@ export class AdminController {
     res.json({ success: true, data: source });
   }
 
-  static triggerSource(req: Request, res: Response) {
+  static async triggerSource(req: Request, res: Response) {
     const id = req.params.id as string;
     const source = db.sources.get(id);
     if (!source) {
@@ -54,11 +56,50 @@ export class AdminController {
       return;
     }
 
-    source.lastSuccessfulRunAt = new Date().toISOString();
-    source.totalJobsCollected += 8;
-    db.sources.set(id, source);
+    let fetchedJobs: Job[] = [];
+    let statusMsg = '';
+    try {
+      if (source.sourceUrl.includes('arbeitsagentur')) {
+        const resBa = await LiveJobFetcher.fetchArbeitsagentur();
+        fetchedJobs = resBa.jobs;
+        statusMsg = resBa.result.error || '';
+      } else if (source.sourceUrl.includes('remotive')) {
+        const resRem = await LiveJobFetcher.fetchRemotive(40);
+        fetchedJobs = resRem.jobs;
+        statusMsg = resRem.result.error || '';
+      } else {
+        const resAn = await LiveJobFetcher.fetchArbeitnow(2);
+        fetchedJobs = resAn.jobs;
+        statusMsg = resAn.result.error || '';
+      }
 
-    res.json({ success: true, message: `Ingestion triggered for ${source.sourceName}.` });
+      for (const job of fetchedJobs) {
+        let existing: Job | undefined;
+        for (const j of db.jobs.values()) {
+          if (j.dedupHash === job.dedupHash) {
+            existing = j;
+            break;
+          }
+        }
+        db.jobs.set(existing ? existing.id : job.id, existing ? { ...job, id: existing.id, createdAt: existing.createdAt } : job);
+      }
+
+      source.lastSuccessfulRunAt = new Date().toISOString();
+      source.totalJobsCollected += fetchedJobs.length;
+      source.lastErrorLog = fetchedJobs.length === 0 && statusMsg ? statusMsg : undefined;
+      source.updatedAt = new Date().toISOString();
+      db.sources.set(id, source);
+
+      res.json({
+        success: true,
+        data: { fetchedCount: fetchedJobs.length, totalJobs: db.jobs.size },
+        message: `Fetched ${fetchedJobs.length} live jobs from ${source.sourceName}.`
+      });
+    } catch (err: any) {
+      source.lastErrorLog = err.message;
+      db.sources.set(id, source);
+      res.json({ success: true, data: { fetchedCount: 0 }, message: `Source ${source.sourceName} check completed (${err.message}).` });
+    }
   }
 
   static getWeights(req: Request, res: Response) {

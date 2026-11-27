@@ -35,7 +35,7 @@ async def run_ingestion_cycle():
     ba_connector = ArbeitsagenturConnector()
     for sector_query in MULTI_SECTOR_QUERIES:
         try:
-            ba_jobs = await ba_connector.fetch_jobs(search_query=sector_query, location="Deutschland", limit=5)
+            ba_jobs = await ba_connector.fetch_jobs(search_query=sector_query, location="Deutschland", limit=15)
             all_jobs.extend(ba_jobs)
         except Exception as e:
             print(f"[Crawler Worker] Arbeitsagentur skip for '{sector_query}': {e}")
@@ -43,7 +43,7 @@ async def run_ingestion_cycle():
     # 3. Arbeitnow EU Job Board (multi-sector European roles)
     arbeitnow_connector = ArbeitnowConnector()
     try:
-        an_jobs = await arbeitnow_connector.fetch_jobs(limit=25)
+        an_jobs = await arbeitnow_connector.fetch_jobs(limit=50)
         all_jobs.extend(an_jobs)
         print(f"[Crawler Worker] Loaded {len(an_jobs)} jobs from Arbeitnow EU connector.")
     except Exception as e:

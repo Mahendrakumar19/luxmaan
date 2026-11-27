@@ -181,6 +181,7 @@ export interface Job {
   postedAt: string;
   dedupHash: string;
   isActive: boolean;
+  expiresAt?: string;
   createdAt: string;
 }
 

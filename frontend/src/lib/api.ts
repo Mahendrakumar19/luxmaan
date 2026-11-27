@@ -172,9 +172,9 @@ const MOCK_MATCHES: JobMatch[] = [
 ];
 
 export const apiClient = {
-  async getJobs(params?: { q?: string; location?: string; workplaceType?: string; sector?: string; experienceLevel?: string; software?: string; minSalary?: string }): Promise<Job[]> {
+  async getJobs(params?: { q?: string; location?: string; workplaceType?: string; sector?: string; experienceLevel?: string; software?: string; minSalary?: string; page?: string; pageSize?: string }): Promise<Job[]> {
     try {
-      const cleanParams: Record<string, string> = {};
+      const cleanParams: Record<string, string> = { pageSize: params?.pageSize || '100' };
       if (params) {
         Object.entries(params).forEach(([k, v]) => {
           if (v !== undefined && v !== null && v !== '') cleanParams[k] = String(v);

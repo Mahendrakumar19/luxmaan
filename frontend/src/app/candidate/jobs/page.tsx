@@ -55,7 +55,10 @@ function JobSearchContent() {
     const res = await apiClient.syncLiveJobs();
     setSyncingLive(false);
     if (res.success) {
-      setSyncNotice(res.message || `Synced ${res.syncedCount} live multi-sector jobs.`);
+      const breakdown = (res.sources || [])
+        .map((s: any) => `${s.source}: ${s.fetchedCount} (${s.status})`)
+        .join(" • ");
+      setSyncNotice(`${res.message || `Synced ${res.syncedCount} jobs.`}${breakdown ? ` — ${breakdown}` : ""}`);
       await fetchJobs();
     } else {
       setSyncNotice(res.message || "Could not reach external feeds right now.");
@@ -71,7 +74,8 @@ function JobSearchContent() {
       sector: sector !== "All" ? sector : undefined,
       experienceLevel: experienceLevel !== "All" ? experienceLevel : undefined,
       minSalary: minSalary || undefined,
-      software: software || undefined
+      software: software || undefined,
+      pageSize: "200"
     });
     setJobs(data);
     setLoading(false);
